@@ -101,14 +101,14 @@ public class Shape
 
 }
 
-public class Matrix
+public class Tensor
 {
 
     private readonly Shape _shape;
 
     private readonly double[] _values;
     
-    public Matrix(Shape shape)
+    public Tensor(Shape shape)
     {
         _shape = shape;
         _values = new double[_shape.Size()];
@@ -124,7 +124,7 @@ public class Matrix
         _values[_shape.GetIndex(position)] = value;
     }
 
-    public Matrix Mul(Matrix m, bool disableChecks = false)
+    public Tensor Mul(Tensor m, bool disableChecks = false)
     {
         // equivalent to this x m
         
@@ -137,10 +137,10 @@ public class Matrix
                 if (m._shape.GetLength(i) != _shape.GetLength(i)) isValidOperation = false;
             }
 
-            if (!isValidOperation) throw new Exception("Invalid matrix multiplication");
+            if (!isValidOperation) throw new Exception("Invalid Tensor multiplication");
         }
 
-        var output = new Matrix(Shape.Sub(_shape, m._shape.GetDimensionality()));
+        var output = new Tensor(Shape.Sub(_shape, m._shape.GetDimensionality()));
 
         output._shape.ForEach(o =>
         {
