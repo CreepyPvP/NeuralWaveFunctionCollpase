@@ -1,16 +1,17 @@
 ﻿using System.Runtime.InteropServices;
+using NeuralWaveFunctionCollapse.MachineLearning;
+using NeuralWaveFunctionCollapse.MachineLearning.Layers;
 using NeuralWaveFunctionCollapse.Math;
 
-Tensor input = new Tensor(Shape.Of(3));
+var network = Network.Sequential(new DenseLayer(Shape.Of(1)));
 
-Tensor weights = new Tensor(Shape.Of(3, 1));
+network.Compile(Shape.Of(3));
 
+var input = new Tensor(Shape.Of(3));
 input.SetValue(1, 0);
 input.SetValue(2, 1);
 input.SetValue(3, 2);
 
-weights.SetValue(0.5, 0, 0);
-weights.SetValue(2, 1, 0);
-weights.SetValue(4, 2, 0);
+var result = network.Simulate(input);
 
-Console.WriteLine(weights.Mul(input).GetValue(0)); // Should output 16.5
+Console.WriteLine(result.GetValue(0));  // should output 12.5

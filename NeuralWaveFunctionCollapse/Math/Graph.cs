@@ -4,7 +4,7 @@ public class GraphNode<T>
 {
 
     private readonly T _value;
-    private readonly List<GraphNode<T>> _children;
+    private readonly List<GraphNode<T>> _children = new List<GraphNode<T>>();
 
     public GraphNode(T value)
     {

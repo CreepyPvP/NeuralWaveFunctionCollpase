@@ -9,6 +9,9 @@ public class DenseLayer: Layer
     
     private Tensor? _weights = null;
 
+    private IDataSource _input;
+    private Tensor? _output = null;
+
 
     public DenseLayer(Shape shape) : base("dense_layer")
     {
@@ -20,10 +23,15 @@ public class DenseLayer: Layer
         _shape = shape;
     }
 
-    public override void SetInputShape(Shape input)
+    public override void RegisterInput(IDataSource source)
     {
-        _weights = new Tensor(Shape.Of(input, _shape));
+        _input = source;
         
+        _weights = new Tensor(Shape.Of(source.GetOutputShape(), _shape));
+        _weights.SetValue(5, 0, 0);
+        _weights.SetValue(3, 1, 0);
+        _weights.SetValue(0.5, 2, 0);
+
         // TODO populate weights randomly
     }
 
@@ -31,4 +39,25 @@ public class DenseLayer: Layer
     {
         return _shape;
     }
+
+    public override Tensor GetData()
+    {
+        if (_weights == null) throw new Exception("Trying to compute with a non-compiled model");
+        
+        if (_output != null)
+        {
+            return _output;
+        }
+
+        _output = _weights.Mul(_input.GetData());
+        return _output;
+    }
+
+    public override void Flush()
+    {
+        _output = null;
+        
+        _input.Flush();
+    }
+    
 }

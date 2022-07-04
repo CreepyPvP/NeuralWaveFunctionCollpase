@@ -7,6 +7,10 @@ public class Network
 
     private readonly GraphNode<Layer> _graph;
 
+    private InputDataSource _input;
+    private IDataSource _output;
+    
+    
     private Network(GraphNode<Layer> graph)
     {
         _graph = graph;
@@ -14,22 +18,28 @@ public class Network
 
     public void Compile(Shape input)
     {
-        _graph.GetValue().SetInputShape(input);
+        _input = new InputDataSource(input);
+        _graph.GetValue().RegisterInput(_input);
         
         _graph.ForEach(layer =>
         {
-            var output = layer.GetValue().GetOutputShape();
+            layer.GetChildren().ForEach(child => child.GetValue().RegisterInput(layer.GetValue()));
             
-            layer.GetChildren().ForEach(child => child.GetValue().SetInputShape(output));
+            // TODO: add proper output neuron selection (maybe by id??)
+            if (layer.GetChildren().Count == 0) _output = layer.GetValue();
         });
     }
 
-    public void Simulate(Tensor input, bool training = true, bool disableChecks = false)
+    public Tensor Simulate(Tensor input, bool training = true, bool disableChecks = false)
     {
-        
+        _output.Flush();
+
+        _input.SetInput(input);
+
+        return _output.GetData();
     }
     
-    public static Network Sequential(Layer[] layers)
+    public static Network Sequential(params Layer[] layers)
     {
         GraphNode<Layer>? root = null;
 

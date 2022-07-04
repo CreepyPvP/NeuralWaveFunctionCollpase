@@ -2,7 +2,7 @@ using NeuralWaveFunctionCollapse.Math;
 
 namespace NeuralWaveFunctionCollapse.MachineLearning;
 
-public abstract class Layer
+public abstract class Layer : IDataSource
 {
 
     private string _id;
@@ -12,19 +12,11 @@ public abstract class Layer
         _id = id;
     }
 
-    public abstract void SetInputShape(Shape input);
+    public abstract void RegisterInput(IDataSource source);
 
     public abstract Shape GetOutputShape();
 
-
-    public void SetId(string id)
-    {
-        _id = id;
-    }
-
-    public string GetId()
-    {
-        return _id;
-    }
-
+    public abstract Tensor GetData();
+    public abstract void Flush();
+    
 }
