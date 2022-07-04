@@ -43,9 +43,10 @@ public class InputDataSource : IDataSource
         _output = null;
     }
 
-    public void SetInput(Tensor tensor)
+    public void SetInput(Tensor tensor, bool disableChecks = false)
     {
-        // TODO check for compatibility with _shape
+        if (!disableChecks && !_shape.Equals(tensor.GetShape()))
+            throw new Exception("Shape of input tensor does not match required shape");
         
         _output = tensor;
     }

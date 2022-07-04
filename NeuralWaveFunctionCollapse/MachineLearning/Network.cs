@@ -34,7 +34,7 @@ public class Network
     {
         _output.Flush();
 
-        _input.SetInput(input);
+        _input.SetInput(input, disableChecks);
 
         return _output.GetData();
     }

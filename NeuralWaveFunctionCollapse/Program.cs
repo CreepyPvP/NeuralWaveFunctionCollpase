@@ -15,3 +15,8 @@ input.SetValue(3, 2);
 var result = network.Simulate(input);
 
 Console.WriteLine(result.GetValue(0));  // should output 12.5
+
+result = network.Simulate(input);
+Console.WriteLine(result.GetValue(0));  // should output 12.5 again, to the the flush method
+
+network.Simulate(new Tensor(Shape.Of(2))); // non matching shape; should throw an exception

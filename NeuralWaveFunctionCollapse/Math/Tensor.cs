@@ -67,12 +67,23 @@ public class Shape
             action.Invoke(currentPos);
             return;
         }
-            
+
         for (var pos = 0; pos < _dimensions[dimension]; pos++)
         {
             currentPos[dimension] = pos;
             ForEachRecursive(action, currentPos, dimension + 1);
         }
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is not Shape) return false;
+
+        var shape = (Shape) obj;
+        
+        if (_dimensions.Length != shape._dimensions.Length) return false;
+
+        return !_dimensions.Where((t, i) => t != shape._dimensions[i]).Any();
     }
 
     public static Shape Of(params int[] shape)
@@ -122,6 +133,11 @@ public class Tensor
     public void SetValue(double value, params int[] position)
     {
         _values[_shape.GetIndex(position)] = value;
+    }
+
+    public Shape GetShape()
+    {
+        return _shape;
     }
 
     public Tensor Mul(Tensor m, bool disableChecks = false)
