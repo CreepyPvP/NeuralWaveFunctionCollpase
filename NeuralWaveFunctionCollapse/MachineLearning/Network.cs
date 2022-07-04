@@ -11,6 +11,23 @@ public class Network
     {
         _graph = graph;
     }
+
+    public void Compile(Shape input)
+    {
+        _graph.GetValue().SetInputShape(input);
+        
+        _graph.ForEach(layer =>
+        {
+            var output = layer.GetValue().GetOutputShape();
+            
+            layer.GetChildren().ForEach(child => child.GetValue().SetInputShape(output));
+        });
+    }
+
+    public void Simulate(Tensor input, bool training = true, bool disableChecks = false)
+    {
+        
+    }
     
     public static Network Sequential(Layer[] layers)
     {

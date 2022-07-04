@@ -16,4 +16,21 @@ public class GraphNode<T>
         _children.Add(child);
     }
 
+    public void ForEach(Action<GraphNode<T>> action)
+    {
+        action.Invoke(this);
+        
+        _children.ForEach(child => child.ForEach(action));
+    }
+
+    public T GetValue()
+    {
+        return _value;
+    }
+
+    public List<GraphNode<T>> GetChildren()
+    {
+        return _children;
+    }
+
 }
