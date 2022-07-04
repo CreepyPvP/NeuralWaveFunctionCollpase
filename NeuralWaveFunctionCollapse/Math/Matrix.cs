@@ -1,3 +1,5 @@
+using NeuralWaveFunctionCollapse.Util;
+
 namespace NeuralWaveFunctionCollapse.Math;
 
 
@@ -5,7 +7,7 @@ public class Shape
 {
 
     private readonly int[] _dimensions;
-    
+
     private Shape(int[] dimensions)
     {
         _dimensions = dimensions;
@@ -14,12 +16,12 @@ public class Shape
     public int Size(int dimension = 0)
     {
         int size = 1;
-        
-        for(int i = dimension; i < _dimensions.Length; i++)
+
+        for (int i = dimension; i < _dimensions.Length; i++)
         {
             size *= _dimensions[i];
         }
-        
+
         return size;
     }
 
@@ -41,12 +43,62 @@ public class Shape
 
         return index;
     }
-    
+
+    public int GetDimensionality()
+    {
+        return _dimensions.Length;
+    }
+
+    public int GetLength(int dimension)
+    {
+        return _dimensions[dimension];
+    }
+
+    public void ForEach(Action<int[]> action)
+    {
+        var pos = new int[_dimensions.Length];
+        ForEachRecursive(action, pos, 0);
+    }
+
+    private void ForEachRecursive(Action<int[]> action, int[] currentPos, int dimension)
+    {
+        if (dimension >= _dimensions.Length)
+        {
+            action.Invoke(currentPos);
+            return;
+        }
+            
+        for (var pos = 0; pos < _dimensions[dimension]; pos++)
+        {
+            currentPos[dimension] = pos;
+            ForEachRecursive(action, currentPos, dimension + 1);
+        }
+    }
+
     public static Shape Of(params int[] shape)
     {
         return new Shape(shape);
     }
-    
+
+    public static Shape Of(Shape s0, Shape s1)
+    {
+        var result = s0._dimensions.Concat(s1._dimensions);
+
+        return new Shape(result);
+    }
+
+    public static Shape Sub(Shape shape, int dimension)
+    {
+        var dimensions = new int[shape._dimensions.Length - dimension];
+
+        for (int i = 0; i < dimensions.Length; i++)
+        {
+            dimensions[i] = shape._dimensions[i + dimension];
+        }
+        
+        return new Shape(dimensions);
+    }
+
 }
 
 public class Matrix
@@ -67,9 +119,41 @@ public class Matrix
         return _values[_shape.GetIndex(position)];
     }
 
-    public double SetValue(double value, params int[] position)
+    public void SetValue(double value, params int[] position)
     {
         _values[_shape.GetIndex(position)] = value;
+    }
+
+    public Matrix Mul(Matrix m, bool disableChecks = false)
+    {
+        // equivalent to this x m
+        
+        if (!disableChecks)
+        {
+            var isValidOperation = !(_shape.GetDimensionality() <= m._shape.GetDimensionality());
+
+            for (var i = 0; i < m._shape.GetDimensionality() && isValidOperation; i++)
+            {
+                if (m._shape.GetLength(i) != _shape.GetLength(i)) isValidOperation = false;
+            }
+
+            if (!isValidOperation) throw new Exception("Invalid matrix multiplication");
+        }
+
+        var output = new Matrix(Shape.Sub(_shape, m._shape.GetDimensionality()));
+
+        output._shape.ForEach(o =>
+        {
+            double v = 0;
+            m._shape.ForEach(k =>
+            {
+                var position = k.Concat(o);
+                v += m.GetValue(k) * GetValue(position);
+            });
+            output.SetValue(v, output._shape.GetIndex(o));
+        });
+
+        return output;
     }
     
 }
