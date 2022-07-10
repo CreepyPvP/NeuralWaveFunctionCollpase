@@ -75,6 +75,12 @@ public class Shape
         }
     }
 
+
+    public int GetSizeAt(int dimension)
+    {
+        return _dimensions[dimension];
+    }
+
     public override bool Equals(object? obj)
     {
         if (obj is not Shape) return false;
@@ -93,7 +99,7 @@ public class Shape
 
     public static Shape Of(Shape s0, Shape s1)
     {
-        var result = s0._dimensions.Concat(s1._dimensions);
+        var result = s0._dimensions.ArrJoin(s1._dimensions);
 
         return new Shape(result);
     }
@@ -109,28 +115,29 @@ public class Shape
         
         return new Shape(dimensions);
     }
-
+    
+    
 }
 
-public class Tensor
+public class DataContainer<T>
 {
 
     private readonly Shape _shape;
 
-    private readonly double[] _values;
+    private readonly T[] _values;
     
-    public Tensor(Shape shape)
+    public DataContainer(Shape shape)
     {
         _shape = shape;
-        _values = new double[_shape.Size()];
+        _values = new T[_shape.Size()];
     }
 
-    public double GetValue(params int[] position)
+    public T GetValue(params int[] position)
     {
         return _values[_shape.GetIndex(position)];
     }
 
-    public void SetValue(double value, params int[] position)
+    public void SetValue(T value, params int[] position)
     {
         _values[_shape.GetIndex(position)] = value;
     }
@@ -139,37 +146,13 @@ public class Tensor
     {
         return _shape;
     }
+    
+}
 
-    public Tensor Mul(Tensor m, bool disableChecks = false)
+public class Tensor : DataContainer<double>
+{
+    public Tensor(Shape shape) : base(shape)
     {
-        // equivalent to this x m
-        
-        if (!disableChecks)
-        {
-            var isValidOperation = !(_shape.GetDimensionality() <= m._shape.GetDimensionality());
-
-            for (var i = 0; i < m._shape.GetDimensionality() && isValidOperation; i++)
-            {
-                if (m._shape.GetLength(i) != _shape.GetLength(i)) isValidOperation = false;
-            }
-
-            if (!isValidOperation) throw new Exception("Invalid Tensor multiplication");
-        }
-
-        var output = new Tensor(Shape.Sub(_shape, m._shape.GetDimensionality()));
-
-        output._shape.ForEach(o =>
-        {
-            double v = 0;
-            m._shape.ForEach(k =>
-            {
-                var position = k.Concat(o);
-                v += m.GetValue(k) * GetValue(position);
-            });
-            output.SetValue(v, output._shape.GetIndex(o));
-        });
-
-        return output;
     }
     
 }
