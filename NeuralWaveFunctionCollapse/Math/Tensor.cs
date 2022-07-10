@@ -132,6 +132,19 @@ public class DataContainer<T>
         _values = new T[_shape.Size()];
     }
 
+    public DataContainer(Shape shape, T initial)
+    {
+        _shape = shape;
+        var size = _shape.Size();
+        _values = new T[size];
+
+        for (var i = 0; i < size; i++)
+        {
+            _values[i] = initial;
+        }
+    }
+
+
     public T GetValue(params int[] position)
     {
         return _values[_shape.GetIndex(position)];
@@ -152,6 +165,10 @@ public class DataContainer<T>
 public class Tensor : DataContainer<double>
 {
     public Tensor(Shape shape) : base(shape)
+    {
+    }
+    
+    public Tensor(Shape shape, double initialValue) : base(shape, initialValue)
     {
     }
     
