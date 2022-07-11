@@ -61,15 +61,16 @@ public class Grid<T>
 
     public void Collapse()
     {
-        int[]? currentPos;
-        while ((currentPos = GetLowestEntropy()) != null ) 
+        var x = 0;
+        var y = 0;
+        while (GetLowestEntropy(ref x, ref y)) 
         {
-            var probabilities = _probabilities.Slice(2, currentPos.ArrJoin(new int[]{0}));
+            var probabilities = _probabilities.Slice(2, x, y, 0);
             var collapsedElement = _random.NextIndex(probabilities, false);
             
-            _output.SetValue(collapsedElement, currentPos);
+            _output.SetValue(collapsedElement, x, y);
             
-            PropagateCollapse(currentPos[0], currentPos[1]);
+            PropagateCollapse(x, y);
         }
     }
 
@@ -99,9 +100,9 @@ public class Grid<T>
         }
     }
 
-    private int[]? GetLowestEntropy()
+    private bool GetLowestEntropy(ref int resultX, ref int resultY)
     {
-        int[]? pos = null;
+        bool success = false;
         double entropy = 0;
         
         for (var x = 0; x < _width; x++)
@@ -109,28 +110,22 @@ public class Grid<T>
             for (var y = 0; y < _height; y++)
             {
                 var localEntropy = GetEntropy(x, y);
-                if (_output.GetValue(x, y) == -1 && (localEntropy < entropy || pos == null))
+                if ((!success || localEntropy < entropy) && _output.GetValue(x, y) == -1)
                 {
-                    pos = new[] { x, y };
+                    resultX = x;
+                    resultY = y;
+                    success = true;
                     entropy = localEntropy;
                 }
             }
         }
 
-        return pos;
+        return success;
     }
 
     private double GetEntropy(int x, int y)
     {
-        double entropy = 0;
-        for (var i = 0; i < _outputElements.Length; i++)
-        {
-            var probability = _probabilities.GetValue(x, y, i);
-
-            entropy += probability * probability;
-        }
-
-        return entropy;
+        return _probabilities.GetLastLengthSquared(_outputElements.Length, x, y, 0);
     }
 
     public DataContainer<int> GetOutput()

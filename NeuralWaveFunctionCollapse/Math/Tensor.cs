@@ -122,9 +122,9 @@ public class Shape
 public class DataContainer<T>
 {
 
-    private readonly Shape _shape;
+    protected readonly Shape _shape;
 
-    private readonly T[] _values;
+    protected readonly T[] _values;
     
     public DataContainer(Shape shape)
     {
@@ -236,6 +236,20 @@ public class Tensor : DataContainer<double>
     
     public Tensor(Shape shape, double initialValue) : base(shape, initialValue)
     {
+    }
+
+
+    public double GetLastLengthSquared(int size, params int[] start)
+    {
+        double sum = 0;
+        var startIndex = _shape.GetIndex(start);
+            
+        for (var i = 0; i < size; i++)
+        {
+            sum += System.Math.Pow(_values[startIndex + i], 2);
+        }
+
+        return sum;
     }
     
 }
