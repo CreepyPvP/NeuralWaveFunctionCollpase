@@ -58,9 +58,11 @@ public class SeededRandom
                 totalLength += distribution.GetValue(i);
             }
         }
-        
+
         var number = _random.NextDouble() * totalLength;
         double currentSum = 0;
+        
+        // distribution.Print();
 
         for (var i = 0; i < elements; i++)
         {

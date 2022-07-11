@@ -172,13 +172,60 @@ public class DataContainer<T>
 
         for (var i = 0; i < outputShape.GetSizeAt(0); i++)
         {
-            output.SetValue(GetValue(posCopy));
+            output.SetValue(GetValue(posCopy), i);
             posCopy[dimension]++;
         }
         
         return output;
     }
 
+
+    public void Print()
+    {
+        if (this._shape.GetDimensionality() == 2)
+        {
+            Print2D();
+            return;
+        }
+
+        if (this._shape.GetDimensionality() == 1)
+        {
+            Print1D();
+            return;
+        }
+
+        throw new Exception("Print not implemented for this dimensionality");
+    }
+
+    private void Print1D()
+    {
+        var output = "";
+        
+        for (var x = 0; x < _shape.GetSizeAt(0); x++)
+        {
+            output += ((x == 0) ? GetValue(x) : ", " + GetValue(x));
+        }
+
+        Console.WriteLine(output);
+    }
+
+    private void Print2D()
+    {
+        var output = "";
+        
+        for (var y = 0; y < _shape.GetSizeAt(1); y++)
+        {
+            for (var x = 0; x < _shape.GetSizeAt(0); x++)
+            {
+                output += ((x == 0) ? GetValue(x, y) : ", " + GetValue(x, y));
+            }
+
+            output += "\n";
+        }
+
+        Console.WriteLine(output);
+    }
+    
 }
 
 public class Tensor : DataContainer<double>

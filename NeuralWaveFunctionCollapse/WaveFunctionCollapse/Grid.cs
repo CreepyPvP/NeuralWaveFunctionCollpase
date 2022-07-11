@@ -25,6 +25,9 @@ public class Grid<T>
     private readonly SeededRandom _random;
     
 
+    public Grid(int width, int height, T[] outputElements, IWaveFunctionModel model, int seed): 
+        this(width, height, outputElements, new Tensor(Shape.Of(width, height, 0)), model, seed) {}
+
     public Grid(int width, int height, T[] outputElements, Tensor input, IWaveFunctionModel model, int seed): 
         this(width, height, outputElements, new Tensor(Shape.Of(width, height, outputElements.Length)), input, model, seed) { }
 
@@ -59,9 +62,9 @@ public class Grid<T>
     public void Collapse()
     {
         int[]? currentPos;
-        while ((currentPos = GetLowestEntropy()) != null)
+        while ((currentPos = GetLowestEntropy()) != null ) 
         {
-            var probabilities = _probabilities.Slice(2, 0, 0, 0);
+            var probabilities = _probabilities.Slice(2, currentPos.ArrJoin(new int[]{0}));
             var collapsedElement = _random.NextIndex(probabilities, false);
             
             _output.SetValue(collapsedElement, currentPos);
@@ -77,13 +80,16 @@ public class Grid<T>
         {
             for (var yI = 0; yI < _height; yI++)
             {
+                if(xI == x && yI == y) continue;
+
                 if (_model.Impacts(xI, yI, x, y))
                 {
-                    var probabilities = _model.CalculateDistribution(xI, yI, _probabilities, _output);
+                    var probabilities = _model.CalculateDistribution(xI, yI, _output, _input);
 
                     if (probabilities.GetShape().GetSizeAt(0) != _outputElements.Length)
                         throw new Exception("Model returned invalid probability distribution");
 
+                    
                     for (var i = 0; i < _outputElements.Length; i++)
                     {
                         _probabilities.SetValue(probabilities.GetValue(i), xI, yI, i);
@@ -96,14 +102,14 @@ public class Grid<T>
     private int[]? GetLowestEntropy()
     {
         int[]? pos = null;
-        double entropy = 2;
+        double entropy = 0;
         
         for (var x = 0; x < _width; x++)
         {
             for (var y = 0; y < _height; y++)
             {
                 var localEntropy = GetEntropy(x, y);
-                if (_output.GetValue(x, y) == -1 && localEntropy < entropy)
+                if (_output.GetValue(x, y) == -1 && (localEntropy < entropy || pos == null))
                 {
                     pos = new[] { x, y };
                     entropy = localEntropy;
@@ -126,5 +132,10 @@ public class Grid<T>
 
         return entropy;
     }
-    
+
+    public DataContainer<int> GetOutput()
+    {
+        return _output;
+    }
+
 }
