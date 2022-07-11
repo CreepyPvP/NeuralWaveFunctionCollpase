@@ -159,7 +159,26 @@ public class DataContainer<T>
     {
         return _shape;
     }
-    
+
+
+    public DataContainer<T> Slice(int dimension, params int[] position)
+    {
+        // TODO: checks
+
+        var posCopy = position.Copy();
+        
+        var outputShape = Shape.Of(_shape.GetSizeAt(dimension) - position[dimension]);
+        var output = new DataContainer<T>(outputShape);
+
+        for (var i = 0; i < outputShape.GetSizeAt(0); i++)
+        {
+            output.SetValue(GetValue(posCopy));
+            posCopy[dimension]++;
+        }
+        
+        return output;
+    }
+
 }
 
 public class Tensor : DataContainer<double>

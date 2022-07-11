@@ -1,12 +1,13 @@
 ﻿using NeuralWaveFunctionCollapse.Math;
+using NeuralWaveFunctionCollapse.Util;
 
 namespace NeuralWaveFunctionCollapse.WaveFunctionCollapse;
 
-public class Grid
+public class Grid<T>
 {
 
 
-    private int _outputComplexity;
+    private readonly T[] _outputElements;
 
     private readonly DataContainer<int> _output;
 
@@ -18,15 +19,17 @@ public class Grid
 
     private readonly int _width;
     private readonly int _height;
+
+    private readonly SeededRandom _random;
     
 
-    public Grid(int width, int height, int outputComplexity, Tensor input): 
-        this(width, height, outputComplexity, new Tensor(Shape.Of(width, height, outputComplexity)), input) { }
+    public Grid(int width, int height, T[] outputElements, Tensor input, int seed): 
+        this(width, height, outputElements, new Tensor(Shape.Of(width, height, outputElements.Length)), input, seed) { }
 
-    public Grid(int width, int height, int outputComplexity, Tensor initialStates, Tensor input)
+    public Grid(int width, int height, T[] outputElements, Tensor initialStates, Tensor input, int seed)
     {
-        _outputComplexity = outputComplexity;
-        _probabilities = new Tensor(Shape.Of(width, height, outputComplexity), 1.0);
+        _outputElements = outputElements;
+        _probabilities = new Tensor(Shape.Of(width, height, outputElements.Length), 1.0);
         _input = input;
 
         _width = width;
@@ -36,7 +39,7 @@ public class Grid
         
         if (initialStates.GetShape().GetSizeAt(0) != width || 
             initialStates.GetShape().GetSizeAt(1) != height ||
-            initialStates.GetShape().GetSizeAt(2) != outputComplexity ||
+            initialStates.GetShape().GetSizeAt(2) != outputElements.Length ||
             initialStates.GetShape().GetDimensionality() != 3)
             throw new Exception("Invalid initial state");
         
@@ -44,6 +47,8 @@ public class Grid
             input.GetShape().GetSizeAt(1) != height ||
             input.GetShape().GetDimensionality() != 3)
             throw new Exception("Invalid input format");
+
+        _random = new SeededRandom(seed);
     }
 
 
@@ -52,8 +57,12 @@ public class Grid
         int[]? currentPos;
         while ((currentPos = GetLowestEntropy()) != null)
         {
-
+            var probabilities = _probabilities.Slice(2, 0, 0, 0);
+            var collapsedElement = _random.NextIndex(probabilities, false);
             
+            _output.SetValue(collapsedElement, currentPos);
+            
+            // TODO propagate changes
             
         }
     }
@@ -83,7 +92,7 @@ public class Grid
     private double GetEntropy(int x, int y)
     {
         double entropy = 0;
-        for (var i = 0; i < _outputComplexity; i++)
+        for (var i = 0; i < _outputElements.Length; i++)
         {
             var probability = _probabilities.GetValue(x, y, i);
 
