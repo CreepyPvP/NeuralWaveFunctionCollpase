@@ -20,13 +20,15 @@ public class Grid<T>
     private readonly int _width;
     private readonly int _height;
 
+    private readonly IWaveFunctionModel _model;
+    
     private readonly SeededRandom _random;
     
 
-    public Grid(int width, int height, T[] outputElements, Tensor input, int seed): 
-        this(width, height, outputElements, new Tensor(Shape.Of(width, height, outputElements.Length)), input, seed) { }
+    public Grid(int width, int height, T[] outputElements, Tensor input, IWaveFunctionModel model, int seed): 
+        this(width, height, outputElements, new Tensor(Shape.Of(width, height, outputElements.Length)), input, model, seed) { }
 
-    public Grid(int width, int height, T[] outputElements, Tensor initialStates, Tensor input, int seed)
+    public Grid(int width, int height, T[] outputElements, Tensor initialStates, Tensor input, IWaveFunctionModel model, int seed)
     {
         _outputElements = outputElements;
         _probabilities = new Tensor(Shape.Of(width, height, outputElements.Length), 1.0);
@@ -36,6 +38,8 @@ public class Grid<T>
         _height = height;
 
         _output = new DataContainer<int>(Shape.Of(width, height), -1);
+
+        _model = model;
         
         if (initialStates.GetShape().GetSizeAt(0) != width || 
             initialStates.GetShape().GetSizeAt(1) != height ||
@@ -62,11 +66,32 @@ public class Grid<T>
             
             _output.SetValue(collapsedElement, currentPos);
             
-            // TODO propagate changes
-            
+            PropagateCollapse(currentPos[0], currentPos[1]);
         }
     }
 
+
+    private void PropagateCollapse(int x, int y)
+    {
+        for (var xI = 0; xI < _width; xI++)
+        {
+            for (var yI = 0; yI < _height; yI++)
+            {
+                if (_model.Impacts(xI, yI, x, y))
+                {
+                    var probabilities = _model.CalculateDistribution(xI, yI, _probabilities, _output);
+
+                    if (probabilities.GetShape().GetSizeAt(0) != _outputElements.Length)
+                        throw new Exception("Model returned invalid probability distribution");
+
+                    for (var i = 0; i < _outputElements.Length; i++)
+                    {
+                        _probabilities.SetValue(probabilities.GetValue(i), xI, yI, i);
+                    }
+                }
+            }
+        }
+    }
 
     private int[]? GetLowestEntropy()
     {
