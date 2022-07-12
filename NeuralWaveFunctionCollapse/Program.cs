@@ -27,8 +27,8 @@ var outputElements = new int[] {0, 1, 2};
 var seed = 10434;
 
 var model = new SimpleModel();
-var grid = new Grid<int>(50, 50, outputElements, model, seed);
+var grid = new Grid<int>(20, 20, outputElements, model, seed);
 
 Console.WriteLine("Grid Output: -----------------------------------------------");
-grid.Collapse();
-// grid.GetOutput().Print();
+grid.Collapse(); 
+grid.GetOutput().Print();

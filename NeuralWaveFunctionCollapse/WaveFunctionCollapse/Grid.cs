@@ -56,9 +56,22 @@ public class Grid<T>
             throw new Exception("Invalid input format");
 
         _random = new SeededRandom(seed);
+        
+        // CalculateInitialDistribution();
     }
 
 
+    private void CalculateInitialDistribution()
+    {
+        for (var x = 0; x < _width; x++)
+        {
+            for (var y = 0; y < _height; y++)
+            {
+                UpdateDistribution(x, y);
+            }
+        }
+    }
+    
     public void Collapse()
     {
         var x = 0;
@@ -67,7 +80,7 @@ public class Grid<T>
         {
             var probabilities = _probabilities.Slice(2, x, y, 0);
             var collapsedElement = _random.NextIndex(probabilities, false);
-            
+
             _output.SetValue(collapsedElement, x, y);
             
             PropagateCollapse(x, y);
@@ -83,19 +96,7 @@ public class Grid<T>
             {
                 if(xI == x && yI == y) continue;
 
-                if (_model.Impacts(xI, yI, x, y))
-                {
-                    var probabilities = _model.CalculateDistribution(xI, yI, _output, _input);
-
-                    if (probabilities.GetShape().GetSizeAt(0) != _outputElements.Length)
-                        throw new Exception("Model returned invalid probability distribution");
-
-                    
-                    for (var i = 0; i < _outputElements.Length; i++)
-                    {
-                        _probabilities.SetValue(probabilities.GetValue(i), xI, yI, i);
-                    }
-                }
+                if (_model.Impacts(x, y, xI, yI)) UpdateDistribution(xI, yI);
             }
         }
     }
@@ -128,9 +129,32 @@ public class Grid<T>
         return _probabilities.GetLastLengthSquared(_outputElements.Length, x, y, 0);
     }
 
+    private void UpdateDistribution(int x, int y)
+    {
+        if (_output.GetValue(x, y) != -1) return;
+        
+        var probabilities = _model.CalculateDistribution(x, y, _output, _input);
+
+        if (probabilities.GetShape().GetSizeAt(0) != _outputElements.Length)
+            throw new Exception("Model returned invalid probability distribution");
+
+        double length = 0.0;
+
+        for (var i = 0; i < _outputElements.Length; i++)
+        {
+            length += probabilities.GetValue(i);
+        }
+                    
+        for (var i = 0; i < _outputElements.Length; i++)
+        {
+            _probabilities.SetValue(probabilities.GetValue(i) / length, x, y, i);
+        }
+    }
+
     public DataContainer<int> GetOutput()
     {
         return _output;
     }
+    
 
 }

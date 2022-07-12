@@ -38,9 +38,9 @@ public class SimpleModel: IWaveFunctionModel
                 var posX = x + dX;
                 var posY = y + dY;
 
-                var value = (posX < 0 || posY < 0 || posX >= gridWidth || posY >= gridHeight)
+                var value = ((posX < 0 || posY < 0 || posX >= gridWidth || posY >= gridHeight)
                     ? 0
-                    : collapsed.GetValue(posX, posY);
+                    : collapsed.GetValue(posX, posY));
 
                 canBe0 = canBe0 && value != 2;
                 canBe2 = canBe2 && value != 0;
@@ -48,11 +48,9 @@ public class SimpleModel: IWaveFunctionModel
         }
 
         output.SetValue(canBe0 ? 1 : 0, 0);
-        output.SetValue(2, 1);
-        output.SetValue(canBe2 ? 4 : 0, 2);
-        
-        // output.Print();
-        
+        output.SetValue(1, 1);
+        output.SetValue(canBe2 ? 1 : 0, 2);
+
         return output;
     }
     
