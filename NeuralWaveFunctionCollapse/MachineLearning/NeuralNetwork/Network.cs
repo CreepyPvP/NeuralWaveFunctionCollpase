@@ -1,6 +1,6 @@
 using NeuralWaveFunctionCollapse.Math;
 
-namespace NeuralWaveFunctionCollapse.MachineLearning;
+namespace NeuralWaveFunctionCollapse.MachineLearning.NeuralNetwork;
 
 public class Network
 {

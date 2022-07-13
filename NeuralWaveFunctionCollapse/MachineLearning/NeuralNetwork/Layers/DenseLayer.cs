@@ -1,6 +1,6 @@
 using NeuralWaveFunctionCollapse.Math;
 
-namespace NeuralWaveFunctionCollapse.MachineLearning.Layers;
+namespace NeuralWaveFunctionCollapse.MachineLearning.NeuralNetwork.Layers;
 
 public class DenseLayer: Layer
 {
