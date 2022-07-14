@@ -14,7 +14,7 @@ public class TreeClassifier
         if (_root == null)
             throw new Exception("Tree is not built");
 
-        return 0;
+        return _root.Predict(input);
     }
 
     /*
@@ -53,7 +53,7 @@ interface ITreeElement
      *  data: INDEX x DATAPOINT
      *  labels: INDEX
      */
-    void Build(DataContainer<double>[] data, DataContainer<int>[] labels, double parentEntropy);
+    bool Build(DataContainer<double>[] data, DataContainer<int>[] labels, double parentEntropy);
 
     int Predict(Tensor input);
 
@@ -73,17 +73,18 @@ class TreeDecisionElement: ITreeElement
     private ITreeElement _falseBranch;
     
 
-    public void Build(DataContainer<double>[] data, DataContainer<int>[] labels, double parentEntropy)
+    public bool Build(DataContainer<double>[] data, DataContainer<int>[] labels, double parentEntropy)
     {
+
         if (data.Length <= 0) 
             throw new Exception("Trying to train a binary filter on 0 data points");
         var shape = data[0].GetShape();
-
-        double minTrueEntropy = 0;
-        double minFalseEntropy = 0;
-
+        
+        double minTotalEntropy = 0;
+        
         shape.ForEach(position =>
         {
+
             foreach (var datapoint in data)
             {
                 var splitPoint = datapoint.GetValue(position);
@@ -106,18 +107,25 @@ class TreeDecisionElement: ITreeElement
                 var trueEntropy = CalculateEntropy(trueLabels);
                 var falseEntropy = CalculateEntropy(falseLabels);
 
-                if ((trueEntropy + falseEntropy < minTrueEntropy + minFalseEntropy) || _dataPosition == null)
+                var totalEntropy = (trueLabels.Count / (double)data.Length * trueEntropy +
+                                      falseLabels.Count / (double) data.Length * falseEntropy);
+                
+                if (totalEntropy <  minTotalEntropy || _dataPosition == null)
                 {
                     _dataPosition = position;
                     _splitPoint = splitPoint;
-                    minTrueEntropy = trueEntropy;
-                    minFalseEntropy = falseEntropy;
+
+                    minTotalEntropy = totalEntropy;
                 }
             }
         });
 
-        _trueBranch = parentEntropy - minTrueEntropy > 0.0 ? new TreeDecisionElement() : new TreeLeafElement();
-        _falseBranch = parentEntropy - minFalseEntropy > 0.0 ? new TreeDecisionElement() : new TreeLeafElement();
+        if (parentEntropy - minTotalEntropy <= 0) return false;
+
+        // Console.WriteLine("Final splitpos: " + _splitPoint + ", pos: " + _dataPosition[0]);
+        
+        _trueBranch = new TreeDecisionElement();
+        _falseBranch = new TreeDecisionElement();
 
         List<DataContainer<double>> trueData = new();
         List< DataContainer<int>> trueLabels = new();
@@ -136,8 +144,19 @@ class TreeDecisionElement: ITreeElement
                 falseLabels.Add(labels[i]);
             }
         }
-        _trueBranch.Build(trueData.ToArray(), trueLabels.ToArray(), minTrueEntropy);
-        _falseBranch.Build(falseData.ToArray(), falseLabels.ToArray(), minFalseEntropy);
+        
+        if (trueLabels.Count <= 0 || (!_trueBranch.Build(trueData.ToArray(), trueLabels.ToArray(), minTotalEntropy)))
+        {
+            _trueBranch = new TreeLeafElement();
+            _trueBranch.Build(trueData.ToArray(), trueLabels.ToArray(), minTotalEntropy);
+        }
+        if (falseLabels.Count <= 0 || (!_falseBranch.Build(falseData.ToArray(), falseLabels.ToArray(), minTotalEntropy)))
+        {
+            _falseBranch = new TreeLeafElement();
+            _falseBranch.Build(falseData.ToArray(), falseLabels.ToArray(), minTotalEntropy);
+        }
+
+        return true;
     }
 
     public int Predict(Tensor input)
@@ -167,6 +186,8 @@ class TreeDecisionElement: ITreeElement
         double entropy = 0;
         foreach (var key in classToAmount.Keys)
         {
+            if(key == 0) continue;
+
             var probability = (double)key / labels.Count;
 
             entropy -= probability * System.Math.Log(probability);
@@ -182,7 +203,7 @@ class TreeLeafElement: ITreeElement
 {
 
     private int _label;
-    public void Build(DataContainer<double>[] data, DataContainer<int>[] labels, double parentEntropy)
+    public bool Build(DataContainer<double>[] data, DataContainer<int>[] labels, double parentEntropy)
     {
         Dictionary<int, int> classToAmount = new();
         for (var i = 0; i < labels.Length; i++)
@@ -190,7 +211,7 @@ class TreeLeafElement: ITreeElement
             var current = classToAmount.ContainsKey(labels[i].GetValue(0)) ? classToAmount[labels[i].GetValue(0)] : 0;
             classToAmount[labels[i].GetValue(0)] = current + 1;
         }
-
+        
         var maxCount = 0;
         foreach (var label in classToAmount.Keys)
         {
@@ -198,6 +219,8 @@ class TreeLeafElement: ITreeElement
             _label = label;
             maxCount = classToAmount[label];
         }
+        
+        return true;
     }
 
     public int Predict(Tensor input)
