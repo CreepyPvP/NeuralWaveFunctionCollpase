@@ -4,7 +4,7 @@ namespace NeuralWaveFunctionCollapse.Math;
 
 public static class TensorOperations
 {
-    
+
     public static Tensor Mul(this Tensor self, Tensor m, bool disableChecks = false)
     {
         // equivalent to self x m
@@ -36,6 +36,6 @@ public static class TensorOperations
 
         return output;
     }
-
+    
     
 }

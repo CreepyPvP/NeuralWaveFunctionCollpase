@@ -17,7 +17,7 @@ public class Shape
     {
         int size = 1;
 
-        for (int i = dimension; i < _dimensions.Length; i++)
+        for (var i = dimension; i < _dimensions.Length; i++)
         {
             size *= _dimensions[i];
         }
@@ -104,6 +104,11 @@ public class Shape
         return new Shape(result);
     }
 
+    public static Shape Of(Shape shape, int from, int count)
+    {
+        return new Shape(new ArraySegment<int>(shape._dimensions, from, count).ToArray());
+    }
+
     public static Shape Sub(Shape shape, int dimension)
     {
         var dimensions = new int[shape._dimensions.Length - dimension];
@@ -130,6 +135,15 @@ public class DataContainer<T>
     {
         _shape = shape;
         _values = new T[_shape.Size()];
+    }
+
+    public DataContainer(Shape shape, T[] initialValues)
+    {
+        if (initialValues.Length != shape.Size())
+            throw new Exception("Invalid initial values size");
+
+        _shape = shape;
+        _values = initialValues;
     }
 
     public DataContainer(Shape shape, T initial)
@@ -180,6 +194,24 @@ public class DataContainer<T>
     }
 
 
+    public DataContainer<T>[] ToArray()
+    {
+        var shape = _shape.GetDimensionality() == 1 ? Shape.Of(1) : Shape.Of(_shape, 1, _shape.GetDimensionality() - 1);
+
+        var position = new int[_shape.GetDimensionality()];
+        
+        var result = new DataContainer<T>[_shape.GetSizeAt(0)];
+        for (var i = 0; i < _shape.GetSizeAt(0); i++)
+        {
+            position[0] = i;
+            
+            var values = new ArraySegment<T>(_values,_shape.GetIndex(position), _shape.Size(1)).ToArray();
+            result[i] = new DataContainer<T>(shape, values);
+        }
+
+        return result;
+    }
+
     public void Print()
     {
         if (this._shape.GetDimensionality() == 2)
@@ -227,6 +259,7 @@ public class DataContainer<T>
     }
     
 }
+
 
 public class Tensor : DataContainer<double>
 {
