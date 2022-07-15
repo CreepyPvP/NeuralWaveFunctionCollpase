@@ -84,8 +84,10 @@ public class RandomForestClassifier
 
             var trimmedData = input.ByIndexContainer(_indexStorage[i]);
 
-            var prediction = tree.Predict(trimmedData);
+            // var prediction = tree.Predict(trimmedData);
         }
+
+        throw new Exception("Not implemented");
     }
     
 }
