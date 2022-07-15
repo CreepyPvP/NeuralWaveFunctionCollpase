@@ -137,6 +137,12 @@ public class DataContainer<T>
         _values = new T[_shape.Size()];
     }
 
+    public DataContainer(DataContainer<T> copy)
+    {
+        _shape = copy._shape;
+        _values = copy._values;
+    }
+
     public DataContainer(Shape shape, T[] initialValues)
     {
         if (initialValues.Length != shape.Size())
@@ -278,7 +284,12 @@ public class Tensor : DataContainer<double>
     public Tensor(Shape shape) : base(shape)
     {
     }
-    
+
+    public Tensor(DataContainer<double> self): base(self)
+    {
+        
+    }
+
     public Tensor(Shape shape, double initialValue) : base(shape, initialValue)
     {
     }

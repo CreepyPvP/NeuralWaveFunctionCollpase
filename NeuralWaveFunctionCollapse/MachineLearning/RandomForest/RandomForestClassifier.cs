@@ -7,10 +7,10 @@ public class RandomForestClassifier
 {
 
     // INDEX
-    private DataContainer<TreeClassifier> _treeStorage;
+    private DataContainer<TreeClassifier>? _treeStorage;
     
     // INDEX x DATA_INDEX
-    private DataContainer<int>[] _indexStorage;
+    private DataContainer<int>[]? _indexStorage;
 
     /*
      *  data: INDEX x DATAPOINT
@@ -75,19 +75,30 @@ public class RandomForestClassifier
     {
         // TODO check input
         
-        if (_treeStorage == null)
+        if (_treeStorage == null || _indexStorage == null)
             throw new Exception("Random forest is still untrained");
 
+        Dictionary<int, int> classToAmount = new();
+        
         for (var i = 0; i < _treeStorage.GetShape().GetSizeAt(0); i++)
         {
             var tree = _treeStorage.GetValue(i);
-
             var trimmedData = input.ByIndexContainer(_indexStorage[i]);
 
-            // var prediction = tree.Predict(trimmedData);
+            var prediction = tree.Predict(new Tensor(trimmedData));
+            Console.WriteLine(prediction);
+            classToAmount[prediction] = classToAmount.ContainsKey(prediction) ? classToAmount[prediction] + 1 : 1;
         }
 
-        throw new Exception("Not implemented");
+        int? bestPrediction = null;
+        foreach (var key in classToAmount.Keys)
+        {
+            if (bestPrediction == null || classToAmount[key] > classToAmount[bestPrediction.Value]) bestPrediction = key;
+        }
+
+        if (!bestPrediction.HasValue) throw new Exception("This should not have happened");
+        
+        return bestPrediction.Value;
     }
     
 }

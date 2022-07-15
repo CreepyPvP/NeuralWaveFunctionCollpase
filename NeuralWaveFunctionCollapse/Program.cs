@@ -1,10 +1,10 @@
 ﻿using NeuralWaveFunctionCollapse.MachineLearning.RandomForest;
 using NeuralWaveFunctionCollapse.Math;
 
-var tree = new TreeClassifier();
+var forest = new RandomForestClassifier();
 
 
-var trainingSize = 4;
+var trainingSize = 40;
 
 var trainingData = new Tensor(Shape.Of(trainingSize * 2, 2));
 var labels = new DataContainer<int>(Shape.Of(trainingSize * 2));
@@ -27,12 +27,12 @@ for (; i < trainingSize * 2; i++)
     labels.SetValue(1, i);
 }
 
-tree.Train(trainingData, labels);
+forest.Train(trainingData, labels, 40, 453489);
 
 
 
 var test = new Tensor(Shape.Of(2));
-test.SetValue(1.5, 0);
-test.SetValue(1.5*1.5, 1);
+test.SetValue(12.4, 0);
+test.SetValue(12.4*0.5, 1);
 
-Console.WriteLine("Prediction: " + tree.Predict(test));
+Console.WriteLine("Prediction: " + forest.Predict(test));
