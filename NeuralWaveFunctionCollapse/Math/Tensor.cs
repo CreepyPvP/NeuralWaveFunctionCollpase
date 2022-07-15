@@ -212,6 +212,18 @@ public class DataContainer<T>
         return result;
     }
 
+    public DataContainer<T> ByIndexContainer(DataContainer<int> indexContainer)
+    {
+        var result = new DataContainer<T>(indexContainer.GetShape());
+
+        for (var i = 0; i < indexContainer._values.Length; i++)
+        {
+            result._values[i] = _values[indexContainer._values[i]];
+        }
+        
+        return result;
+    }
+
     public void Print()
     {
         if (this._shape.GetDimensionality() == 2)

@@ -27,11 +27,18 @@ public class TreeClassifier
             labels.GetShape().GetDimensionality() != 1)
             throw new Exception("Invalid data passed");
         
+        Train(data.ToArray(), labels);
+    }
+
+    public void Train(DataContainer<double>[] data, DataContainer<int> labels)
+    {
+        // TODO checks
+        
         _root = new TreeDecisionElement();
         
         _root.Build(data.ToArray(), labels.ToArray(), 1);
     }
-
+    
     public void Save()
     {
         throw new Exception("Not implemented");

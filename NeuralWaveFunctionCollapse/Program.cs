@@ -33,6 +33,6 @@ tree.Train(trainingData, labels);
 
 var test = new Tensor(Shape.Of(2));
 test.SetValue(2.5, 0);
-test.SetValue(2.5*2.5, 1);
+test.SetValue(2.5*0.5, 1);
 
 Console.WriteLine("Prediction: " + tree.Predict(test));

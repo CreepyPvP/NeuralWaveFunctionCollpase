@@ -81,6 +81,17 @@ public class SeededRandom
                                System.Math.Sin(2.0 * System.Math.PI * u2); //random normal(0,1)
         return mean + stdDev * randStdNormal;
     }
+
+    // Totally not copied from SO
+    public void Shuffle<T>(T[] arr)
+    {
+        int n = arr.Length;
+        while (n > 1) 
+        {
+            var k = _random.Next(n--);
+            (arr[n], arr[k]) = (arr[k], arr[n]);
+        }
+    }
     
 }
 
