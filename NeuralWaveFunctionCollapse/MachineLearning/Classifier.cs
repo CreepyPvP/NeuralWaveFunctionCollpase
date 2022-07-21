@@ -5,8 +5,8 @@ namespace NeuralWaveFunctionCollapse.MachineLearning;
 public interface IClassifier
 {
 
-    int Classify(Tensor input);
+    Tensor Classify(Tensor input);
 
-    void Train(Tensor input, DataContainer<int> labels);
+    void Train(Tensor input, DataContainer<int> labels, int classCount);
 
 }

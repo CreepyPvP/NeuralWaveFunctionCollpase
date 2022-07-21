@@ -1,38 +1,27 @@
-﻿using NeuralWaveFunctionCollapse.MachineLearning.RandomForest;
+﻿using NeuralWaveFunctionCollapse.Benchmark;
+using NeuralWaveFunctionCollapse.MachineLearning.RandomForest;
 using NeuralWaveFunctionCollapse.Math;
+using NeuralWaveFunctionCollapse.WaveFunctionCollapse;
+using NeuralWaveFunctionCollapse.WaveFunctionCollapse.Models;
 
-var forest = new RandomForestClassifier();
+var forest = new RandomForestClassifier(50, 45345);
+
+var model = new ClassifierModel(forest, 3);
+
+var possibleOutputStates = 10;
+
+var input = new Tensor(Shape.Of(20, 20, 1), 0);
+
+model.Build(input, possibleOutputStates);
 
 
-var trainingSize = 40;
 
-var trainingData = new Tensor(Shape.Of(trainingSize * 2, 2));
-var labels = new DataContainer<int>(Shape.Of(trainingSize * 2));
-
-var i = 0;
-
-// class 0
-for (; i < trainingSize; i++)
+var benchmark = new Benchmark(() =>
 {
-    trainingData.SetValue(i, i, 0);
-    trainingData.SetValue(i * i,i, 1);
-    labels.SetValue(0, i);
-}
+    var grid = new Grid(50, 50, possibleOutputStates, model, 55960589);
+    grid.Collapse();    
+}, 20);
 
-// class 1
-for (; i < trainingSize * 2; i++)
-{
-    trainingData.SetValue(i - trainingSize, i, 0);
-    trainingData.SetValue(0.5 * (i - trainingSize),i, 1);
-    labels.SetValue(1, i);
-}
+benchmark.Run();
 
-forest.Train(trainingData, labels, 40, 453489);
-
-
-
-var test = new Tensor(Shape.Of(2));
-test.SetValue(12.4, 0);
-test.SetValue(12.4*0.5, 1);
-
-Console.WriteLine("Prediction: " + forest.Predict(test));
+Console.WriteLine("Avg time: " + benchmark.GetAvgTime());

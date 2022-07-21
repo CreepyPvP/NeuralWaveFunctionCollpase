@@ -230,6 +230,11 @@ public class DataContainer<T>
         return result;
     }
 
+    public void Copy(DataContainer<T> toCopy, int index = 0)
+    {
+        toCopy._values.CopyTo(_values, index);
+    }
+    
     public void Print()
     {
         if (this._shape.GetDimensionality() == 2)

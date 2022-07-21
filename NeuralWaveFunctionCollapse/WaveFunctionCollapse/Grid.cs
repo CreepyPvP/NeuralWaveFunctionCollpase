@@ -3,11 +3,11 @@ using NeuralWaveFunctionCollapse.Util;
 
 namespace NeuralWaveFunctionCollapse.WaveFunctionCollapse;
 
-public class Grid<T>
+public class Grid
 {
 
 
-    private readonly T[] _outputElements;
+    private readonly int _outputElements;
 
     private readonly DataContainer<int> _output;
 
@@ -25,16 +25,16 @@ public class Grid<T>
     private readonly SeededRandom _random;
     
 
-    public Grid(int width, int height, T[] outputElements, IWaveFunctionModel model, int seed): 
+    public Grid(int width, int height, int outputElements, IWaveFunctionModel model, int seed): 
         this(width, height, outputElements, new Tensor(Shape.Of(width, height, 0)), model, seed) {}
 
-    public Grid(int width, int height, T[] outputElements, Tensor input, IWaveFunctionModel model, int seed): 
-        this(width, height, outputElements, new Tensor(Shape.Of(width, height, outputElements.Length)), input, model, seed) { }
+    public Grid(int width, int height, int outputElements, Tensor input, IWaveFunctionModel model, int seed): 
+        this(width, height, outputElements, new Tensor(Shape.Of(width, height, outputElements)), input, model, seed) { }
 
-    public Grid(int width, int height, T[] outputElements, Tensor initialStates, Tensor input, IWaveFunctionModel model, int seed)
+    public Grid(int width, int height, int outputElements, Tensor initialStates, Tensor input, IWaveFunctionModel model, int seed)
     {
         _outputElements = outputElements;
-        _probabilities = new Tensor(Shape.Of(width, height, outputElements.Length), 1.0);
+        _probabilities = new Tensor(Shape.Of(width, height, outputElements), 1.0);
         _input = input;
 
         _width = width;
@@ -46,7 +46,7 @@ public class Grid<T>
         
         if (initialStates.GetShape().GetSizeAt(0) != width || 
             initialStates.GetShape().GetSizeAt(1) != height ||
-            initialStates.GetShape().GetSizeAt(2) != outputElements.Length ||
+            initialStates.GetShape().GetSizeAt(2) != outputElements ||
             initialStates.GetShape().GetDimensionality() != 3)
             throw new Exception("Invalid initial state");
         
@@ -126,7 +126,7 @@ public class Grid<T>
 
     private double GetEntropy(int x, int y)
     {
-        return _probabilities.GetLastLengthSquared(_outputElements.Length, x, y, 0);
+        return _probabilities.GetLastLengthSquared(_outputElements, x, y, 0);
     }
 
     private void UpdateDistribution(int x, int y)
@@ -135,17 +135,17 @@ public class Grid<T>
         
         var probabilities = _model.CalculateDistribution(x, y, _output, _input);
 
-        if (probabilities.GetShape().GetSizeAt(0) != _outputElements.Length)
+        if (probabilities.GetShape().GetSizeAt(0) != _outputElements)
             throw new Exception("Model returned invalid probability distribution");
 
         double length = 0.0;
 
-        for (var i = 0; i < _outputElements.Length; i++)
+        for (var i = 0; i < _outputElements; i++)
         {
             length += probabilities.GetValue(i);
         }
                     
-        for (var i = 0; i < _outputElements.Length; i++)
+        for (var i = 0; i < _outputElements; i++)
         {
             _probabilities.SetValue(probabilities.GetValue(i) / length, x, y, i);
         }
