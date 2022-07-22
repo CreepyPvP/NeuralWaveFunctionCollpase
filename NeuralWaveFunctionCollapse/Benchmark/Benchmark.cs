@@ -39,11 +39,9 @@ public class Benchmark
     }
 
 
-    public double GetAvgTime()
-    {
-        long totalTime = _results.Sum(result => result.GetDuration());
+    public double AvgTime => TotalTime / (double) _iterations;
 
-        return totalTime / (double) _iterations / 1000;
-    }
+    public double TotalTime => _results.Sum(result => result.GetDuration()) / (double) 1000;
+    
     
 }

@@ -1,4 +1,5 @@
-﻿using NeuralWaveFunctionCollapse.Math;
+﻿using System.Diagnostics;
+using NeuralWaveFunctionCollapse.Math;
 using NeuralWaveFunctionCollapse.Util;
 
 namespace NeuralWaveFunctionCollapse.WaveFunctionCollapse;
@@ -74,9 +75,7 @@ public class Grid
     
     public void Collapse()
     {
-        var x = 0;
-        var y = 0;
-        while (GetLowestEntropy(ref x, ref y)) 
+        while (GetLowestEntropy(out var x, out var y)) 
         {
             var probabilities = _probabilities.Slice(2, x, y, 0);
             var collapsedElement = _random.NextIndex(probabilities, false);
@@ -101,8 +100,11 @@ public class Grid
         }
     }
 
-    private bool GetLowestEntropy(ref int resultX, ref int resultY)
+    private bool GetLowestEntropy(out int resultX, out int resultY)
     {
+        resultX = 0;
+        resultY = 0;
+        
         bool success = false;
         double entropy = 0;
         
