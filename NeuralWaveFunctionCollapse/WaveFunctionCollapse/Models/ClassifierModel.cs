@@ -41,11 +41,13 @@ public class ClassifierModel: IWaveFunctionModel
 
                 var index = 0;
             
-                for (var dX = 0; dX < _radius; dX++)
+                for (var dX = -_radius; dX <= _radius; dX++)
                 {
-                    for (var dY = 0; dY < _radius; dY++)
+                    for (var dY = -_radius; dY <= _radius; dY++)
                     {
-                        // TODO: add samples with uncollapsed indices ( -1 )
+                         if(dX == 0 && dY == 0) continue;
+
+                         // TODO: add samples with uncollapsed indices ( -1 )
                         trainingData.Copy(GetDataAt(x, y, input), trainingData.GetShape().GetIndex(i, index, 0));
                         index++;
                     }
@@ -70,10 +72,12 @@ public class ClassifierModel: IWaveFunctionModel
 
         var index = 0;
         
-        for (var dX = 0; dX < _radius; dX++)
+        for (var dX = -_radius; dX <= _radius; dX++)
         {
-            for (var dY = 0; dY < _radius; dY++)
+            for (var dY = -_radius; dY <= _radius; dY++)
             {
+                if(dX == 0 && dY == 0) continue;
+
                 var x = collapsedX + dX;
                 var y = collapsedY + dY;
                 
@@ -96,11 +100,11 @@ public class ClassifierModel: IWaveFunctionModel
             y >= collapsed.GetShape().GetSizeAt(1))
         {
             // Default out of boundaries
-            result.SetValue(1, 0);
+            result.SetValue(-1, 0);
             
             for (var i = 0; i < outputSize; i++)
             {
-                result.SetValue(0, i + 1);
+                result.SetValue(-1, i + 1);
             }
             
             return result;
@@ -126,9 +130,10 @@ public class ClassifierModel: IWaveFunctionModel
             x >= input.GetShape().GetSizeAt(0) ||
             y >= input.GetShape().GetSizeAt(1))
         {
+            // default out of boundaries
             for (var i = 0; i < outputSize; i++)
             {
-                result.SetValue(0, i);
+                result.SetValue(-1, i);
             }
             
             return result;

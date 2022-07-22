@@ -234,39 +234,46 @@ public class DataContainer<T>
     {
         toCopy._values.CopyTo(_values, index);
     }
+
+    public T[] GetRaw()
+    {
+        return _values;
+    }
     
-    public void Print()
+    public void Print(bool jsonArray = false)
     {
         if (this._shape.GetDimensionality() == 2)
         {
-            Print2D();
+            Print2D(jsonArray);
             return;
         }
 
         if (this._shape.GetDimensionality() == 1)
         {
-            Print1D();
+            Print1D(jsonArray);
             return;
         }
 
         throw new Exception("Print not implemented for this dimensionality");
     }
 
-    private void Print1D()
+    private void Print1D(bool jsonArray)
     {
-        var output = "";
+        var output = jsonArray ? "[" : "";
         
         for (var x = 0; x < _shape.GetSizeAt(0); x++)
         {
             output += ((x == 0) ? GetValue(x) : ", " + GetValue(x));
         }
 
+        if (jsonArray) output += "]";
+        
         Console.WriteLine(output);
     }
 
-    private void Print2D()
+    private void Print2D(bool jsonArray)
     {
-        var output = "";
+        var output = jsonArray ? "[" : "";
         
         for (var y = 0; y < _shape.GetSizeAt(1); y++)
         {
@@ -275,8 +282,10 @@ public class DataContainer<T>
                 output += ((x == 0) ? GetValue(x, y) : ", " + GetValue(x, y));
             }
 
-            output += "\n";
+            output += jsonArray? ",\n" : "\n";
         }
+
+        if (jsonArray) output += "]";
 
         Console.WriteLine(output);
     }
@@ -299,6 +308,10 @@ public class Tensor : DataContainer<double>
     {
     }
 
+    public Tensor(Shape shape, double[] values) : base(shape, values)
+    {
+    }
+
 
     public double GetLastLengthSquared(int size, params int[] start)
     {
@@ -311,6 +324,13 @@ public class Tensor : DataContainer<double>
         }
 
         return sum;
+    }
+
+
+    public Tensor UpDimension()
+    {
+        var resultShape = Shape.Of(_shape, Shape.Of(1));
+        return new Tensor(resultShape, _values);
     }
     
 }

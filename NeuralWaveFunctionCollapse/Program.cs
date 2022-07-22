@@ -1,6 +1,9 @@
 ﻿using NeuralWaveFunctionCollapse.Benchmark;
+using NeuralWaveFunctionCollapse.IO;
+using NeuralWaveFunctionCollapse.IO.Impl;
 using NeuralWaveFunctionCollapse.MachineLearning.RandomForest;
 using NeuralWaveFunctionCollapse.Math;
+using NeuralWaveFunctionCollapse.Types;
 using NeuralWaveFunctionCollapse.WaveFunctionCollapse;
 using NeuralWaveFunctionCollapse.WaveFunctionCollapse.Models;
 
@@ -11,27 +14,30 @@ class Program
 
     public static void Main()
     {
-        var forest = new RandomForestClassifier(50, 45345);
+        var ioManager = new IoManager();
+        ioManager.RegisterImporter(new LdtkLevelImporter());
 
-        var model = new ClassifierModel(forest, 3);
+        var level = ioManager.Load<LdtkLevel>("C:/Users/Luis/Desktop/maps/maps/Level_1.ldtkl");
 
-        var possibleOutputStates = 10;
+        var input = level.GetLayer("StructureLayer").ToTensor().UpDimension();
 
-        var input = new Tensor(Shape.Of(20, 20, 1), 0);
+        
+        var forest = new RandomForestClassifier(100, 5456);
+
+        var model = new ClassifierModel(forest, 2);
+
+        var possibleOutputStates = 5;
 
         model.Build(input, possibleOutputStates);
 
 
 
-        var benchmark = new Benchmark.Benchmark(() =>
-        {
-            var grid = new Grid(50, 50, possibleOutputStates, model, 55960589); 
-            grid.Collapse();    
-        }, 20);
-
-        benchmark.Run();
-
-        Console.WriteLine("Avg time: " + benchmark.AvgTime);    // old system: 1,7709 (50x50 grid, 3 radius, 50 trees)
+        var grid = new Grid(16, 12, possibleOutputStates, model, 64567); 
+        grid.Collapse();  
+        grid.GetOutput().Print(true);
+        
+        // Console.WriteLine("Avg time: " + benchmark.AvgTime);    // old system: 1,7709 (50x50 grid, 3 radius, 50 trees)
+        
     }
     
 }
