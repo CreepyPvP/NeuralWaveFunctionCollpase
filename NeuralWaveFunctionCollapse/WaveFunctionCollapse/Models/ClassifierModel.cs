@@ -45,7 +45,7 @@ public class ClassifierModel: IWaveFunctionModel
                 {
                     for (var dY = -_radius; dY <= _radius; dY++)
                     {
-                         if(dX == 0 && dY == 0) continue;
+                        if(dX == 0 && dY == 0) continue;
 
                          // TODO: add samples with uncollapsed indices ( -1 )
                         trainingData.Copy(GetDataAt(x, y, input), trainingData.GetShape().GetIndex(i, index, 0));

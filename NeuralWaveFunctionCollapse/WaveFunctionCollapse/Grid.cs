@@ -58,7 +58,7 @@ public class Grid
 
         _random = new SeededRandom(seed);
         
-        // CalculateInitialDistribution();
+        CalculateInitialDistribution();
     }
 
 

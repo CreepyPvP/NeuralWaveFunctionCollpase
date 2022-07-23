@@ -32,12 +32,45 @@ class Program
 
 
 
-        var grid = new Grid(16, 12, possibleOutputStates, model, 64567); 
-        grid.Collapse();  
-        grid.GetOutput().Print(true);
+        // var grid = new Grid(16, 12, possibleOutputStates, model, 64567); 
+        // grid.Collapse();  
+        // grid.GetOutput().Print(true);
+
+
+        var test = new Tensor(Shape.Of(24));
+        test.SetValue(0, 0);
+        test.SetValue(0, 1);
+        test.SetValue(1, 2);
+        test.SetValue(0, 3);
+        test.SetValue(0, 4);
+
+        test.SetValue(0, 5);
+        test.SetValue(0, 6);
+        test.SetValue(1, 7);
+        test.SetValue(0, 8);
+        test.SetValue(0, 9);
+        
+        test.SetValue(0, 10);
+        test.SetValue(0, 11);
+        test.SetValue(0, 12);
+        test.SetValue(0, 13);
+        
+        test.SetValue(0, 14);
+        test.SetValue(0, 15);
+        test.SetValue(2, 16);
+        test.SetValue(3, 17);
+        test.SetValue(3, 18);
+        
+        test.SetValue(0, 19);
+        test.SetValue(0, 20);
+        test.SetValue(2, 21);
+        test.SetValue(0, 22);
+        test.SetValue(0, 23);
+        
+        forest.Classify(test).Print();
         
         // Console.WriteLine("Avg time: " + benchmark.AvgTime);    // old system: 1,7709 (50x50 grid, 3 radius, 50 trees)
-        
+
     }
     
 }
