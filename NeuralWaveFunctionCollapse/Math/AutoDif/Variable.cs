@@ -68,11 +68,72 @@ public class Variable
     }
     
     
+    // Operators ------------------------------------------------------------------
+    
     public static Variable operator *(Variable var1, Variable var2)
     {
         return Mul(var1, var2);
     }
     
+    public static Variable operator *(Variable var1, double var2)
+    {
+        return Mul(var1, Variable.Of(var2));
+    }
+    
+    public static Variable operator *(double var1, Variable var2)
+    {
+        return Mul(var2, Variable.Of(var1));
+    }
+    
+    public static Variable operator +(Variable var1, Variable var2)
+    {
+        return Add(var1, var2);
+    }
+    
+    public static Variable operator +(Variable var1, double var2)
+    {
+        return Add(var1, Variable.Of(var2));
+    }
+    
+    public static Variable operator +(double var1, Variable var2)
+    {
+        return Add(Variable.Of(var1), var2);
+    }
+    
+    public static Variable operator -(Variable var1)
+    {
+        return Mul(var1, Variable.Of(-1));
+    }
+    
+    public static Variable operator -(Variable var1, Variable var2)
+    {
+        return Add(var1, -var2);
+    }
+    
+    public static Variable operator -(Variable var1, double var2)
+    {
+        return Add(var1, Variable.Of(-var2));
+    }
+    
+    public static Variable operator -(double var1, Variable var2)
+    {
+        return Add(Variable.Of(var1), -var2);
+    }
+    
+    public static Variable operator /(Variable var1, Variable var2)
+    {
+        return Mul(var1, Invert(var2));
+    }
+    
+    public static Variable operator /(Variable var1, double var2)
+    {
+        return Mul(var1, Invert(Variable.Of(var2)));
+    }
+    
+    public static Variable operator /(double var1, Variable var2)
+    {
+        return Mul(Variable.Of(var1), Invert(var2));
+    }
 
     public static Variable Of(double value)
     {
@@ -84,6 +145,23 @@ public class Variable
         var result = new Variable(new Multiply(var1, var2));
         var1._dependants.Add(result);
         var2._dependants.Add(result);
+        return result;
+    }
+
+
+    public static Variable Add(Variable var1, Variable var2)
+    {
+        var result = new Variable(new Add(var1, var2));
+        var1._dependants.Add(result);
+        var2._dependants.Add(result);
+        return result;
+    }
+
+
+    public static Variable Invert(Variable var1)
+    {
+        var result = new Variable(new Invert(var1));
+        var1._dependants.Add(result);
         return result;
     }
 

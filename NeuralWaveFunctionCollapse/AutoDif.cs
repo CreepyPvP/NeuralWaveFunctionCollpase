@@ -19,7 +19,7 @@ public class AutoDif
 
     static Variable F(Variable var1, Variable var2)
     {
-        return var1 * var2;
+        return var1 / var2;
     }
     
 }
