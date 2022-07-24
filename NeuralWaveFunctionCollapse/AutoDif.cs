@@ -1,4 +1,5 @@
 ﻿using NeuralWaveFunctionCollapse.Math.AutoDif;
+using NeuralWaveFunctionCollapse.Math.Optimisation;
 
 namespace NeuralWaveFunctionCollapse;
 
@@ -10,16 +11,26 @@ public class AutoDif
         var v1 = Variable.Of(4);
         var v2 = Variable.Of(10);
 
-        var derivatives = F(v1, v2).Derive();
+        var optimiser = new StochasticGradientDescentOptimiser();
+
+        var config = new SgdConfig
+        {
+            Iterations = 10000,
+            LearnRate = 0.001
+        };
+
+        optimiser.Minimize(F(v1, v2), new Variable[]{ v1, v2 }, config);
         
-        Console.WriteLine(derivatives[v1]);
-        Console.WriteLine(derivatives[v2]);
+        Console.WriteLine(v1.Value());
+        Console.WriteLine(v2.Value());
     }
+    
 
-
-    static Variable F(Variable var1, Variable var2)
+    static Variable F(Variable x, Variable y)
     {
-        return var1 / var2;
+        var var1 = x - 5;
+        var var2 = y + 10;
+        return var1 * var1 + var2 * var2;
     }
     
 }

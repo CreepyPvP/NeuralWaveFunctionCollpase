@@ -5,7 +5,7 @@ namespace NeuralWaveFunctionCollapse.Math.AutoDif;
 public class Variable
 {
 
-    private readonly IOperation _source;
+    private IOperation _source;
     
     private readonly List<Variable> _dependants = new();
 
@@ -65,6 +65,11 @@ public class Variable
     private double Derive(Variable to, Dictionary<Variable, double> values)
     {
         return _source.Derive(to, values);
+    }
+
+    public void Set(double value)
+    {
+        _source = new Identity(value);
     }
     
     
