@@ -5,7 +5,7 @@ public interface IOperation
 
     double GetValue();
 
-    double GetValues(Dictionary<Variable, double> valueStore);
+    double GetValues(Dictionary<Variable, double> valueStore, Dictionary<Variable, List<Variable>> dependants);
 
     Variable[] GetDependencies();
 
@@ -14,7 +14,7 @@ public interface IOperation
 }
 
 
-public class Identity : IOperation
+public readonly struct Identity : IOperation
 {
 
     private readonly double _value;
@@ -29,7 +29,7 @@ public class Identity : IOperation
         return _value;
     }
 
-    public double GetValues(Dictionary<Variable, double> valueStore)
+    public double GetValues(Dictionary<Variable, double> valueStore, Dictionary<Variable, List<Variable>> dependants)
     {
         return _value;
     }
@@ -45,7 +45,7 @@ public class Identity : IOperation
     }
 }
 
-public class Multiply: IOperation
+public readonly struct Multiply: IOperation
 {
 
     private readonly Variable _var1;
@@ -62,13 +62,13 @@ public class Multiply: IOperation
         return _var1.Value() * _var2.Value();
     }
 
-    public double GetValues(Dictionary<Variable, double> valueStore)
+    public double GetValues(Dictionary<Variable, double> valueStore, Dictionary<Variable, List<Variable>> dependants)
     {
         if(!valueStore.ContainsKey(_var1))
-            _var1.Values(valueStore);
+            _var1.Values(valueStore, dependants);
         
         if(!valueStore.ContainsKey(_var2))
-            _var2.Values(valueStore);
+            _var2.Values(valueStore, dependants);
 
         return valueStore[_var1] * valueStore[_var2];
     }
@@ -90,7 +90,7 @@ public class Multiply: IOperation
 }
 
 
-public class Add : IOperation
+public readonly struct Add : IOperation
 {
 
 
@@ -108,13 +108,13 @@ public class Add : IOperation
         return _var1.Value() + _var2.Value();
     }
 
-    public double GetValues(Dictionary<Variable, double> valueStore)
+    public double GetValues(Dictionary<Variable, double> valueStore, Dictionary<Variable, List<Variable>> dependants)
     {
         if(!valueStore.ContainsKey(_var1))
-            _var1.Values(valueStore);
+            _var1.Values(valueStore,dependants);
         
         if(!valueStore.ContainsKey(_var2))
-            _var2.Values(valueStore);
+            _var2.Values(valueStore, dependants);
 
         return valueStore[_var1] + valueStore[_var2];
     }
@@ -132,7 +132,7 @@ public class Add : IOperation
 }
 
 
-public class Invert : IOperation
+public readonly struct Invert : IOperation
 {
 
     
@@ -148,10 +148,10 @@ public class Invert : IOperation
         return 1 / _var.Value();
     }
 
-    public double GetValues(Dictionary<Variable, double> valueStore)
+    public double GetValues(Dictionary<Variable, double> valueStore, Dictionary<Variable, List<Variable>> dependants)
     {
         if(!valueStore.ContainsKey(_var))
-            _var.Values(valueStore);
+            _var.Values(valueStore, dependants);
 
         return 1 / valueStore[_var];
     }

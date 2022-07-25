@@ -14,6 +14,7 @@ class Program
 
     public static void Main()
     {
+        /*
         var ioManager = new IoManager();
         ioManager.RegisterImporter(new LdtkLevelImporter());
 
@@ -70,7 +71,8 @@ class Program
         forest.Classify(test).Print();
         
         // Console.WriteLine("Avg time: " + benchmark.AvgTime);    // old system: 1,7709 (50x50 grid, 3 radius, 50 trees)
-
+        */
+        AutoDif.Start();
     }
     
 }

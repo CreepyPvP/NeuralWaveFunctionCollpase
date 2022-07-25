@@ -8,23 +8,27 @@ public class AutoDif
 
     public static void Start()
     {
-        var v1 = Variable.Of(4);
-        var v2 = Variable.Of(10);
+        var v1 = Variable.Of(1);
 
-        var optimiser = new StochasticGradientDescentOptimiser();
-
-        var config = new SgdConfig
+        var benchmark = new Benchmark.Benchmark(() =>
         {
-            Iterations = 10000,
-            LearnRate = 0.001
-        };
-
-        optimiser.Minimize(F(v1, v2), new Variable[]{ v1, v2 }, config);
+            var test = ExpensiveFunction(v1).Derive();
+        }, 1);
+        benchmark.Run();
         
-        Console.WriteLine(v1.Value());
-        Console.WriteLine(v2.Value());
+        Console.WriteLine(benchmark.AvgTime);
     }
-    
+
+
+    static Variable ExpensiveFunction(Variable v)
+    {
+        for (var i = 0; i < 10000; i++)
+        {
+            v *= 10;
+        }
+
+        return v;
+    }
 
     static Variable F(Variable x, Variable y)
     {
