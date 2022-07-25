@@ -4,11 +4,11 @@ namespace NeuralWaveFunctionCollapse.Math.Optimisation;
 
 
 
-public struct SgdConfig
+public readonly struct SgdConfig
 {
-    public double LearnRate { get; set; }
+    public readonly double LearnRate { get; }
     
-    public int Iterations { get; set; }
+    public readonly int Iterations { get; }
 }
 
 
@@ -28,6 +28,20 @@ public class StochasticGradientDescentOptimiser: IOptimiser<SgdConfig>
                 variable.Set(variable.Value() - configuration.LearnRate * derivative);
             }
             
+        }
+    }
+
+    public void Minimize(Variable fun, SgdConfig configuration)
+    {
+        for (var i = 0; i < configuration.Iterations; i++)
+        {
+            var derivatives = fun.Derive();
+            foreach (var param in derivatives.Keys)
+            {
+                if (!param.IsIdentity()) continue;
+                
+                param.Set(param.Value() - configuration.LearnRate * derivatives[param]);
+            }
         }
     }
     

@@ -3,7 +3,17 @@ using NeuralWaveFunctionCollapse.Util;
 
 namespace NeuralWaveFunctionCollapse.MachineLearning.RandomForest;
 
-public class RandomForestClassifier: IClassifier
+
+
+public readonly struct RandomForestTrainingConfiguration
+{
+
+    public readonly int ClassCount { get; }
+
+}
+
+
+public class RandomForestClassifier: IClassifier<RandomForestTrainingConfiguration>
 {
 
     // INDEX
@@ -30,22 +40,22 @@ public class RandomForestClassifier: IClassifier
      *  data: INDEX x DATAPOINT
      *  labels: INDEX
      */
-    public void Train(Tensor data, DataContainer<int> labels, int classCount)
+    public void Train(Tensor input, DataContainer<int> labels, RandomForestTrainingConfiguration configuration)
     {
-        if (data.GetShape().GetDimensionality() <= 1)
+        if (input.GetShape().GetDimensionality() <= 1)
             throw new Exception("Cant train on 1-dimensional data");
 
-        _outputClasses = classCount;
+        _outputClasses = configuration.ClassCount;
         
-        var paramCount = data.GetShape().Size(1);
+        var paramCount = input.GetShape().Size(1);
         var treeParamCount = (int) System.Math.Sqrt(paramCount);
         
-        var dataPoints = data.ToArray();
+        var dataPoints = input.ToArray();
 
         _indexStorage = 
             GenerateParamCombinations(
                     treeParamCount, 
-                    Shape.Sub(data.GetShape(), 1),
+                    Shape.Sub(input.GetShape(), 1),
                     _treeCount, 
                     _random)
             .ToArray();
@@ -108,5 +118,5 @@ public class RandomForestClassifier: IClassifier
 
         return output;
     }
-    
+
 }

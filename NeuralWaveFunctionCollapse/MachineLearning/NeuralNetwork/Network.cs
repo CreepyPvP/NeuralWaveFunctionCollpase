@@ -1,8 +1,18 @@
 using NeuralWaveFunctionCollapse.Math;
 
-namespace NeuralWaveFunctionCollapse.MachineLearning.NeuralNetwork;
+namespace NeuralWaveFunctionCollapse.MachineLearning. NeuralNetwork;
 
-public class Network
+
+
+public readonly struct NeuronalNetworkTrainingConfiguration
+{
+    
+    
+    
+}
+
+
+public class Network: IClassifier<NeuronalNetworkTrainingConfiguration>
 {
 
     private readonly GraphNode<Layer> _graph;
@@ -53,5 +63,16 @@ public class Network
 
         return new Network(root!);
     }
-    
+
+    public Tensor Classify(Tensor input)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void Train(Tensor input, DataContainer<int> labels, NeuronalNetworkTrainingConfiguration configuration)
+    {
+        throw new NotImplementedException();
+    }
+
+
 }

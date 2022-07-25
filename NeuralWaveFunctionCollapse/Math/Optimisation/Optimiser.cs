@@ -7,4 +7,6 @@ public interface IOptimiser<in TConfiguration>
 
     void Minimize(Variable fun, Variable[] adjustable, TConfiguration configuration);
 
+    void Minimize(Variable fun, TConfiguration configuration);
+
 }

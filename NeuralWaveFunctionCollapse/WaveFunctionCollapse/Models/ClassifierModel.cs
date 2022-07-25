@@ -3,23 +3,23 @@ using NeuralWaveFunctionCollapse.Math;
 
 namespace NeuralWaveFunctionCollapse.WaveFunctionCollapse.Models;
 
-public class ClassifierModel: IWaveFunctionModel
+public class ClassifierModel<TTrainConfiguration>: IWaveFunctionModel
 {
 
 
     private readonly int _radius;
     
-    private IClassifier _classifier;
+    private IClassifier<TTrainConfiguration> _classifier;
 
     
-    public ClassifierModel(IClassifier classifier, int radius)
+    public ClassifierModel(IClassifier<TTrainConfiguration> classifier, int radius)
     {
         _classifier = classifier;
         _radius = radius;
     }
 
     // width x height x inputLayerCount
-    public void Build(Tensor input, int classCount)
+    public void Build(Tensor input, TTrainConfiguration configuration)
     {
         if (input.GetShape().GetDimensionality() != 3 || input.GetShape().GetSizeAt(2) <= 0)
             throw new Exception("Invalid input data");
@@ -57,7 +57,7 @@ public class ClassifierModel: IWaveFunctionModel
             }
         }
         
-        _classifier.Train(trainingData, labels, classCount);
+        _classifier.Train(trainingData, labels, configuration);
     }
     
     public bool Impacts(int collapseX, int collapseY, int posX, int posY)
