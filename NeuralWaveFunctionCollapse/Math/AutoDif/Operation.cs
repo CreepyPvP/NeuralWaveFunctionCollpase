@@ -153,7 +153,7 @@ public readonly struct Invert : IOperation
         if(!valueStore.ContainsKey(_var))
             _var.Values(valueStore, dependants);
 
-        return 1 / valueStore[_var];
+        return valueStore[_var];
     }
 
     public Variable[] GetDependencies()

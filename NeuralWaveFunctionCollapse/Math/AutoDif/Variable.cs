@@ -44,34 +44,42 @@ public class Variable
         Dictionary<Variable, List<Variable>> dependants = new();
 
         Values(values, dependants);
-        DeriveAll(derivatives, values, dependants, 1);
+        DeriveAll(derivatives, values, dependants, true);
         
         return derivatives;
     }
 
-    private void DeriveAll(Dictionary<Variable, double> derivatives, 
-        Dictionary<Variable, double> values, 
+    private void DeriveAll(Dictionary<Variable, double> derivatives,
+        Dictionary<Variable, double> values,
         Dictionary<Variable, List<Variable>> dependants,
-        double? derivative = null)
+        bool isRoot = false)
     {
         if (!_derivable) return;
 
-        if (!derivative.HasValue)
+        var derivative = 0.0;
+        
+        if (!isRoot)
         {
-            derivative = 0.0;
             if (dependants.ContainsKey(this))
             {
                 var dep = dependants[this];
 
                 foreach (var dependant in dep)
                 {
+                    if (!derivatives.ContainsKey(dependant))
+                        return;
+                    
                     derivative += derivatives[dependant] * dependant.Derive(this, values);
                 }
             }
     
         }
-        
-        derivatives[this] = derivative!.Value;
+        else
+        {
+            derivative = 1.0;
+        }
+
+        derivatives[this] = derivative;
         
         foreach (var dependency in _source.GetDependencies())
         {

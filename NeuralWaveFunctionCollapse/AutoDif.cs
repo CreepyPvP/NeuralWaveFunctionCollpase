@@ -8,33 +8,18 @@ public class AutoDif
 
     public static void Start()
     {
-        var v1 = Variable.Of(1);
+        var x = Variable.Of(4);
+        var y = Variable.Of(10);
 
-        var benchmark = new Benchmark.Benchmark(() =>
-        {
-            var test = ExpensiveFunction(v1).Derive();
-        }, 1);
-        benchmark.Run();
+        var results = F(x, y).Derive();
         
-        Console.WriteLine(benchmark.AvgTime);
-    }
-
-
-    static Variable ExpensiveFunction(Variable v)
-    {
-        for (var i = 0; i < 10000; i++)
-        {
-            v *= 10;
-        }
-
-        return v;
+        Console.WriteLine(results[x]);
+        Console.WriteLine(results[y]);
     }
 
     static Variable F(Variable x, Variable y)
     {
-        var var1 = x - 5;
-        var var2 = y + 10;
-        return var1 * var1 + var2 * var2;
+        return x * x + y * y;
     }
     
 }
