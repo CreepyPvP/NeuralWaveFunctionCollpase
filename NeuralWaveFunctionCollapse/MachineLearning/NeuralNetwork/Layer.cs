@@ -16,7 +16,7 @@ public abstract class Layer : IDataSource
 
     public abstract Shape GetOutputShape();
 
-    public abstract Tensor GetData();
+    public abstract Tensor<double> GetData();
     public abstract void Flush();
     
 }

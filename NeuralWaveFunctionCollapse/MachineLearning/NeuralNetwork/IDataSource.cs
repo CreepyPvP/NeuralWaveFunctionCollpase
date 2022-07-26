@@ -7,7 +7,7 @@ public interface IDataSource
 
     Shape GetOutputShape();
     
-    Tensor GetData();
+    Tensor<double> GetData();
 
     void Flush();
 
@@ -18,7 +18,7 @@ public class InputDataSource : IDataSource
 {
 
     private readonly Shape _shape;
-    private Tensor? _output = null;
+    private Tensor<double>? _output = null;
 
     public InputDataSource(Shape shape)
     {
@@ -31,7 +31,7 @@ public class InputDataSource : IDataSource
         return _shape;
     }
 
-    public Tensor GetData()
+    public Tensor<double> GetData()
     {
         if (_output == null) throw new Exception("No input data was provided. This should not happen");
         
@@ -43,7 +43,7 @@ public class InputDataSource : IDataSource
         _output = null;
     }
 
-    public void SetInput(Tensor tensor, bool disableChecks = false)
+    public void SetInput(Tensor<double> tensor, bool disableChecks = false)
     {
         if (!disableChecks && !_shape.Equals(tensor.GetShape()))
             throw new Exception("Shape of input tensor does not match required shape");

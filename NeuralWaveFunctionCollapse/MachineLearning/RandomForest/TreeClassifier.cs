@@ -9,7 +9,7 @@ public class TreeClassifier
     private ITreeElement _root;
     
 
-    public int Predict(Tensor input)
+    public int Predict(Tensor<double> input)
     {
         if (_root == null)
             throw new Exception("Tree is not built");
@@ -21,7 +21,7 @@ public class TreeClassifier
      *  data: INDEX x DATAPOINT
      *  labels: INDEX
      */
-    public void Train(Tensor data, DataContainer<int> labels)
+    public void Train(Tensor<double> data, Tensor<int> labels)
     {
         if (data.GetShape().GetSizeAt(0) != labels.GetShape().GetSizeAt(0) ||
             labels.GetShape().GetDimensionality() != 1)
@@ -30,7 +30,7 @@ public class TreeClassifier
         Train(data.ToArray(), labels);
     }
 
-    public void Train(DataContainer<double>[] data, DataContainer<int> labels)
+    public void Train(Tensor<double>[] data, Tensor<int> labels)
     {
         // TODO checks
         
@@ -60,9 +60,9 @@ interface ITreeElement
      *  data: INDEX x DATAPOINT
      *  labels: INDEX
      */
-    bool Build(DataContainer<double>[] data, DataContainer<int>[] labels, double parentEntropy);
+    bool Build(Tensor<double>[] data, Tensor<int>[] labels, double parentEntropy);
 
-    int Predict(Tensor input);
+    int Predict(Tensor<double> input);
 
 }
 
@@ -80,7 +80,7 @@ class TreeDecisionElement: ITreeElement
     private ITreeElement _falseBranch;
     
 
-    public bool Build(DataContainer<double>[] data, DataContainer<int>[] labels, double parentEntropy)
+    public bool Build(Tensor<double>[] data, Tensor<int>[] labels, double parentEntropy)
     {
 
         if (data.Length <= 0) 
@@ -134,10 +134,10 @@ class TreeDecisionElement: ITreeElement
         _trueBranch = new TreeDecisionElement();
         _falseBranch = new TreeDecisionElement();
 
-        List<DataContainer<double>> trueData = new();
-        List< DataContainer<int>> trueLabels = new();
-        List<DataContainer<double>> falseData = new();
-        List< DataContainer<int>> falseLabels = new();
+        List<Tensor<double>> trueData = new();
+        List<Tensor<int>> trueLabels = new();
+        List<Tensor<double>> falseData = new();
+        List<Tensor<int>> falseLabels = new();
         for (var i = 0; i < data.Length; i++)
         {
             if (Apply(data[i], _dataPosition!, _splitPoint))
@@ -166,7 +166,7 @@ class TreeDecisionElement: ITreeElement
         return true;
     }
 
-    public int Predict(Tensor input)
+    public int Predict(Tensor<double> input)
     {
         if (_dataPosition == null)
             throw new Exception("Trying to predict using untrained tree");
@@ -176,7 +176,7 @@ class TreeDecisionElement: ITreeElement
     }
 
 
-    private bool Apply(DataContainer<double> tensor, int[] splitPos, double splitValue)
+    private bool Apply(Tensor<double> tensor, int[] splitPos, double splitValue)
     {
         return tensor.GetValue(splitPos) <= splitValue;
     }
@@ -210,7 +210,7 @@ class TreeLeafElement: ITreeElement
 {
 
     private int _label;
-    public bool Build(DataContainer<double>[] data, DataContainer<int>[] labels, double parentEntropy)
+    public bool Build(Tensor<double>[] data, Tensor<int>[] labels, double parentEntropy)
     {
         Dictionary<int, int> classToAmount = new();
         for (var i = 0; i < labels.Length; i++)
@@ -230,7 +230,7 @@ class TreeLeafElement: ITreeElement
         return true;
     }
 
-    public int Predict(Tensor input)
+    public int Predict(Tensor<double> input)
     {
         return _label;
     }

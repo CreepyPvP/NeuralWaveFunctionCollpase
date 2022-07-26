@@ -7,10 +7,10 @@ public class DenseLayer: Layer
 
     private readonly Shape _shape;
     
-    private Tensor? _weights = null;
+    private Tensor<double>? _weights = null;
 
     private IDataSource _input;
-    private Tensor? _output = null;
+    private Tensor<double>? _output = null;
 
 
     public DenseLayer(Shape shape) : base("dense_layer")
@@ -27,7 +27,7 @@ public class DenseLayer: Layer
     {
         _input = source;
         
-        _weights = new Tensor(Shape.Of(source.GetOutputShape(), _shape));
+        _weights = new Tensor<double>(Shape.Of(source.GetOutputShape(), _shape));
         _weights.SetValue(5, 0, 0);
         _weights.SetValue(3, 1, 0);
         _weights.SetValue(0.5, 2, 0);
@@ -40,7 +40,7 @@ public class DenseLayer: Layer
         return _shape;
     }
 
-    public override Tensor GetData()
+    public override Tensor<double> GetData()
     {
         if (_weights == null) throw new Exception("Trying to compute with a non-compiled model");
         

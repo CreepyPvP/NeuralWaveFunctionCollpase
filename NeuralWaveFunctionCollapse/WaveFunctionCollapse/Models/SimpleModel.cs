@@ -19,7 +19,7 @@ public class SimpleModel: IWaveFunctionModel
 
     // 0 cant be next to 2, 1 can be next to 0 and 2
     // void counts as 0
-    public Tensor CalculateDistribution(int x, int y, DataContainer<int> collapsed, Tensor additionalData)
+    public Tensor<double> CalculateDistribution(int x, int y, Tensor<int> collapsed, Tensor<double> additionalData)
     {
         var canBe0 = true;
         var canBe2 = true;
@@ -27,7 +27,7 @@ public class SimpleModel: IWaveFunctionModel
         var gridWidth = collapsed.GetShape().GetSizeAt(0);
         var gridHeight = collapsed.GetShape().GetSizeAt(1);
 
-        var output = new Tensor(Shape.Of(3));
+        var output = new Tensor<double>(Shape.Of(3));
         
         for (var dX = -1; dX <= 1; dX++)
         {

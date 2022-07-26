@@ -11,8 +11,8 @@ public interface IClassifier
 public interface IClassifier<TConfiguration>
 {
 
-    Tensor Classify(Tensor input);
+    Tensor<double> Classify(Tensor<double> input);
 
-    void Train(Tensor input, DataContainer<int> labels, TConfiguration configuration);
+    void Train(Tensor<double> input, Tensor<int> labels, TConfiguration configuration);
 
 }

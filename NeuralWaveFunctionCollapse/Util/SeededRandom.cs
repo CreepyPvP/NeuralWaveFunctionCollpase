@@ -42,7 +42,7 @@ public class SeededRandom
         throw new Exception("This happens, when you pass more usedElements then elements. Let this be you a lesson...");
     }
 
-    public int NextIndex(DataContainer<double> distribution, bool distributionNormed, bool ignoreChecks = false)
+    public int NextIndex(Tensor<double> distribution, bool distributionNormed, bool ignoreChecks = false)
     {
         var elements = distribution.GetShape().GetSizeAt(0);
         

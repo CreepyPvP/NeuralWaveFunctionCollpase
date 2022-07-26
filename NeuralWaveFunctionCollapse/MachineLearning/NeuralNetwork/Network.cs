@@ -1,18 +1,22 @@
 using NeuralWaveFunctionCollapse.Math;
+using NeuralWaveFunctionCollapse.Math.AutoDif;
+using NeuralWaveFunctionCollapse.Math.Optimisation;
 
 namespace NeuralWaveFunctionCollapse.MachineLearning. NeuralNetwork;
 
 
 
-public readonly struct NeuronalNetworkTrainingConfiguration
+public readonly struct NeuronalNetworkTrainingConfiguration<TOptimiserConfiguration>
 {
-    
-    
-    
+
+    public readonly Func<Tensor<double>, Tensor<double>, Variable> Loss;
+
+    public readonly IOptimiser<TOptimiserConfiguration> Optimiser;
+
 }
 
 
-public class Network: IClassifier<NeuronalNetworkTrainingConfiguration>
+public class Network: IClassifier<>
 {
 
     private readonly GraphNode<Layer> _graph;
@@ -40,7 +44,7 @@ public class Network: IClassifier<NeuronalNetworkTrainingConfiguration>
         });
     }
 
-    public Tensor Simulate(Tensor input, bool training = true, bool disableChecks = false)
+    public Tensor<double> Simulate(Tensor<double> input, bool training = true, bool disableChecks = false)
     {
         _output.Flush();
 
@@ -64,12 +68,12 @@ public class Network: IClassifier<NeuronalNetworkTrainingConfiguration>
         return new Network(root!);
     }
 
-    public Tensor Classify(Tensor input)
+    public Tensor<double> Classify(Tensor<double> input)
     {
         throw new NotImplementedException();
     }
 
-    public void Train(Tensor input, DataContainer<int> labels, NeuronalNetworkTrainingConfiguration configuration)
+    public void Train(Tensor<double> input, Tensor<int> labels, NeuronalNetworkTrainingConfiguration configuration)
     {
         throw new NotImplementedException();
     }

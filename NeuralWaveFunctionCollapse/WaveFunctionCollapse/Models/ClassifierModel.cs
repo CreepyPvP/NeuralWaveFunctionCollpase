@@ -19,7 +19,7 @@ public class ClassifierModel<TTrainConfiguration>: IWaveFunctionModel
     }
 
     // width x height x inputLayerCount
-    public void Build(Tensor input, TTrainConfiguration configuration)
+    public void Build(Tensor<double> input, TTrainConfiguration configuration)
     {
         if (input.GetShape().GetDimensionality() != 3 || input.GetShape().GetSizeAt(2) <= 0)
             throw new Exception("Invalid input data");
@@ -28,8 +28,8 @@ public class ClassifierModel<TTrainConfiguration>: IWaveFunctionModel
         var height = input.GetShape().GetSizeAt(1);
 
         // training size x neuron count x inputs
-        var trainingData = new Tensor(Shape.Of(width * height, GetKernelSize(_radius), input.GetShape().GetSizeAt(2)));
-        var labels = new DataContainer<int>(Shape.Of(width * height));
+        var trainingData = new Tensor<double>(Shape.Of(width * height, GetKernelSize(_radius), input.GetShape().GetSizeAt(2)));
+        var labels = new Tensor<int>(Shape.Of(width * height));
 
         var i = 0;
         
@@ -65,10 +65,10 @@ public class ClassifierModel<TTrainConfiguration>: IWaveFunctionModel
         return System.Math.Abs(collapseX - posX) <= _radius && System.Math.Abs(collapseY - posY) <= _radius;
     }
 
-    public Tensor CalculateDistribution(int collapsedX, int collapsedY, DataContainer<int> collapsed, Tensor additionalData)
+    public Tensor<double> CalculateDistribution(int collapsedX, int collapsedY, Tensor<int> collapsed, Tensor<double> additionalData)
     {
         // Pos x property
-        var request = new Tensor(Shape.Of(GetKernelSize(_radius), additionalData.GetShape().GetSizeAt(2) + 1));
+        var request = new Tensor<double>(Shape.Of(GetKernelSize(_radius), additionalData.GetShape().GetSizeAt(2) + 1));
 
         var index = 0;
         
@@ -90,10 +90,10 @@ public class ClassifierModel<TTrainConfiguration>: IWaveFunctionModel
     }
 
 
-    private Tensor GetDataAt(int x, int y, DataContainer<int> collapsed, Tensor input)
+    private Tensor<double> GetDataAt(int x, int y, Tensor<int> collapsed, Tensor<double> input)
     {
         var outputSize = input.GetShape().GetSizeAt(2);
-        var result = new Tensor(Shape.Of(outputSize + 1));
+        var result = new Tensor<double>(Shape.Of(outputSize + 1));
         
         if (x < 0 || y < 0 ||
             x >= collapsed.GetShape().GetSizeAt(0) ||
@@ -121,10 +121,10 @@ public class ClassifierModel<TTrainConfiguration>: IWaveFunctionModel
     }
 
 
-    private Tensor GetDataAt(int x, int y, Tensor input)
+    private Tensor<double> GetDataAt(int x, int y, Tensor<double> input)
     {
         var outputSize = input.GetShape().GetSizeAt(2);
-        var result = new Tensor(Shape.Of(outputSize));
+        var result = new Tensor<double>(Shape.Of(outputSize));
         
         if (x < 0 || y < 0 ||
             x >= input.GetShape().GetSizeAt(0) ||

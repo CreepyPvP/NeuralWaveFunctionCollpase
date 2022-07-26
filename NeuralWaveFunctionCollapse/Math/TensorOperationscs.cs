@@ -5,7 +5,7 @@ namespace NeuralWaveFunctionCollapse.Math;
 public static class TensorOperations
 {
 
-    public static Tensor Mul(this Tensor self, Tensor m, bool disableChecks = false)
+    public static Tensor<double> Mul(this Tensor<double> self, Tensor<double> m, bool disableChecks = false)
     {
         // equivalent to self x m
         
@@ -21,7 +21,7 @@ public static class TensorOperations
             if (!isValidOperation) throw new Exception("Invalid Tensor multiplication");
         }
 
-        var output = new Tensor(Shape.Sub(self.GetShape(), m.GetShape().GetDimensionality()));
+        var output = new Tensor<double>(Shape.Sub(self.GetShape(), m.GetShape().GetDimensionality()));
 
         output.GetShape().ForEach(o =>
         {
@@ -35,6 +35,22 @@ public static class TensorOperations
         });
 
         return output;
+    }
+    
+    
+    public static double GetLastLengthSquared(this Tensor<double> self, int size, params int[] start)
+    {
+        double sum = 0;
+        var startIndex = self.GetShape().GetIndex(start);
+
+        var values = self.GetRaw();
+        
+        for (var i = 0; i < size; i++)
+        {
+            sum += System.Math.Pow(values[startIndex + i], 2);
+        }
+
+        return sum;
     }
     
     

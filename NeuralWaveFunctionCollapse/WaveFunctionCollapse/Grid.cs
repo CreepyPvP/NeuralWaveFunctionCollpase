@@ -10,13 +10,13 @@ public class Grid
 
     private readonly int _outputElements;
 
-    private readonly DataContainer<int> _output;
+    private readonly Tensor<int> _output;
 
     // width x height x outputComplexity
-    private readonly Tensor _probabilities;
+    private readonly Tensor<double> _probabilities;
 
     // width x height x inputLayerCount
-    private readonly Tensor _input;
+    private readonly Tensor<double> _input;
 
     private readonly int _width;
     private readonly int _height;
@@ -27,21 +27,21 @@ public class Grid
     
 
     public Grid(int width, int height, int outputElements, IWaveFunctionModel model, int seed): 
-        this(width, height, outputElements, new Tensor(Shape.Of(width, height, 0)), model, seed) {}
+        this(width, height, outputElements, new Tensor<double>(Shape.Of(width, height, 0)), model, seed) {}
 
-    public Grid(int width, int height, int outputElements, Tensor input, IWaveFunctionModel model, int seed): 
-        this(width, height, outputElements, new Tensor(Shape.Of(width, height, outputElements)), input, model, seed) { }
+    public Grid(int width, int height, int outputElements, Tensor<double> input, IWaveFunctionModel model, int seed): 
+        this(width, height, outputElements, new Tensor<double>(Shape.Of(width, height, outputElements)), input, model, seed) { }
 
-    public Grid(int width, int height, int outputElements, Tensor initialStates, Tensor input, IWaveFunctionModel model, int seed)
+    public Grid(int width, int height, int outputElements, Tensor<double> initialStates, Tensor<double> input, IWaveFunctionModel model, int seed)
     {
         _outputElements = outputElements;
-        _probabilities = new Tensor(Shape.Of(width, height, outputElements), 1.0);
+        _probabilities = new Tensor<double>(Shape.Of(width, height, outputElements), 1.0);
         _input = input;
 
         _width = width;
         _height = height;
 
-        _output = new DataContainer<int>(Shape.Of(width, height), -1);
+        _output = new Tensor<int>(Shape.Of(width, height), -1);
 
         _model = model;
         
@@ -153,7 +153,7 @@ public class Grid
         }
     }
 
-    public DataContainer<int> GetOutput()
+    public Tensor<int> GetOutput()
     {
         return _output;
     }

@@ -17,10 +17,10 @@ public class RandomForestClassifier: IClassifier<RandomForestTrainingConfigurati
 {
 
     // INDEX
-    private DataContainer<TreeClassifier>? _treeStorage;
+    private Tensor<TreeClassifier>? _treeStorage;
     
     // INDEX x DATA_INDEX
-    private DataContainer<int>[]? _indexStorage;
+    private Tensor<int>[]? _indexStorage;
 
     private readonly SeededRandom _random;
 
@@ -40,7 +40,7 @@ public class RandomForestClassifier: IClassifier<RandomForestTrainingConfigurati
      *  data: INDEX x DATAPOINT
      *  labels: INDEX
      */
-    public void Train(Tensor input, DataContainer<int> labels, RandomForestTrainingConfiguration configuration)
+    public void Train(Tensor<double> input, Tensor<int> labels, RandomForestTrainingConfiguration configuration)
     {
         if (input.GetShape().GetDimensionality() <= 1)
             throw new Exception("Cant train on 1-dimensional data");
@@ -59,7 +59,7 @@ public class RandomForestClassifier: IClassifier<RandomForestTrainingConfigurati
                     _treeCount, 
                     _random)
             .ToArray();
-        _treeStorage = new DataContainer<TreeClassifier>(Shape.Of(_treeCount));
+        _treeStorage = new Tensor<TreeClassifier>(Shape.Of(_treeCount));
         
         for (var i = 0; i < _treeCount; i++)
         {
@@ -73,9 +73,9 @@ public class RandomForestClassifier: IClassifier<RandomForestTrainingConfigurati
         }
     }
 
-    private DataContainer<int> GenerateParamCombinations(int length, Shape shape, int count, SeededRandom random)
+    private Tensor<int> GenerateParamCombinations(int length, Shape shape, int count, SeededRandom random)
     {
-        var result = new DataContainer<int>(Shape.Of(count, length));
+        var result = new Tensor<int>(Shape.Of(count, length));
 
         var indexStorage = new int[shape.Size()];
         for (var i = 0; i < indexStorage.Length; i++)
@@ -95,14 +95,14 @@ public class RandomForestClassifier: IClassifier<RandomForestTrainingConfigurati
         return result;
     }
 
-    public Tensor Classify(Tensor input)
+    public Tensor<double> Classify(Tensor<double> input)
     {
         // TODO check input
         
         if (_treeStorage == null || _indexStorage == null)
             throw new Exception("Random forest is still untrained");
         
-        var output = new Tensor(Shape.Of(_outputClasses));
+        var output = new Tensor<double>(Shape.Of(_outputClasses));
 
         var treeCount = _treeStorage.GetShape().GetSizeAt(0);
         
@@ -111,7 +111,7 @@ public class RandomForestClassifier: IClassifier<RandomForestTrainingConfigurati
             var tree = _treeStorage.GetValue(i);
             var trimmedData = input.ByIndexContainer(_indexStorage[i]);
 
-            var prediction = tree.Predict(new Tensor(trimmedData));
+            var prediction = tree.Predict(new Tensor<double>(trimmedData));
             
             output.SetValue(output.GetValue(prediction) + 1.0 / treeCount, prediction);
         }

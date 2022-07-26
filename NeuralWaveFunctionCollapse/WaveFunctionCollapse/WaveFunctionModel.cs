@@ -7,6 +7,6 @@ public interface IWaveFunctionModel
 
     bool Impacts(int collapseX, int collapseY, int posX, int posY);
 
-    Tensor CalculateDistribution(int x, int y, DataContainer<int> collapsed, Tensor additionalData);
+    Tensor<double> CalculateDistribution(int x, int y, Tensor<int> collapsed, Tensor<double> additionalData);
 
 }

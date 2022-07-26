@@ -124,26 +124,26 @@ public class Shape
     
 }
 
-public class DataContainer<T>
+public class Tensor<T>
 {
 
     protected readonly Shape _shape;
 
     protected readonly T[] _values;
     
-    public DataContainer(Shape shape)
+    public Tensor(Shape shape)
     {
         _shape = shape;
         _values = new T[_shape.Size()];
     }
 
-    public DataContainer(DataContainer<T> copy)
+    public Tensor(Tensor<T> copy)
     {
         _shape = copy._shape;
         _values = copy._values;
     }
 
-    public DataContainer(Shape shape, T[] initialValues)
+    public Tensor(Shape shape, T[] initialValues)
     {
         if (initialValues.Length != shape.Size())
             throw new Exception("Invalid initial values size");
@@ -152,7 +152,7 @@ public class DataContainer<T>
         _values = initialValues;
     }
 
-    public DataContainer(Shape shape, T initial)
+    public Tensor(Shape shape, T initial)
     {
         _shape = shape;
         var size = _shape.Size();
@@ -181,14 +181,14 @@ public class DataContainer<T>
     }
 
 
-    public DataContainer<T> Slice(int dimension, params int[] position)
+    public Tensor<T> Slice(int dimension, params int[] position)
     {
         // TODO: checks
 
         var posCopy = position.Copy();
         
         var outputShape = Shape.Of(_shape.GetSizeAt(dimension) - position[dimension]);
-        var output = new DataContainer<T>(outputShape);
+        var output = new Tensor<T>(outputShape);
 
         for (var i = 0; i < outputShape.GetSizeAt(0); i++)
         {
@@ -200,27 +200,27 @@ public class DataContainer<T>
     }
 
 
-    public DataContainer<T>[] ToArray()
+    public Tensor<T>[] ToArray()
     {
         var shape = _shape.GetDimensionality() == 1 ? Shape.Of(1) : Shape.Of(_shape, 1, _shape.GetDimensionality() - 1);
 
         var position = new int[_shape.GetDimensionality()];
         
-        var result = new DataContainer<T>[_shape.GetSizeAt(0)];
+        var result = new Tensor<T>[_shape.GetSizeAt(0)];
         for (var i = 0; i < _shape.GetSizeAt(0); i++)
         {
             position[0] = i;
             
             var values = new ArraySegment<T>(_values,_shape.GetIndex(position), _shape.Size(1)).ToArray();
-            result[i] = new DataContainer<T>(shape, values);
+            result[i] = new Tensor<T>(shape, values);
         }
 
         return result;
     }
 
-    public DataContainer<T> ByIndexContainer(DataContainer<int> indexContainer)
+    public Tensor<T> ByIndexContainer(Tensor<int> indexContainer)
     {
-        var result = new DataContainer<T>(indexContainer.GetShape());
+        var result = new Tensor<T>(indexContainer.GetShape());
 
         for (var i = 0; i < indexContainer._values.Length; i++)
         {
@@ -230,7 +230,7 @@ public class DataContainer<T>
         return result;
     }
 
-    public void Copy(DataContainer<T> toCopy, int index = 0)
+    public void Copy(Tensor<T> toCopy, int index = 0)
     {
         toCopy._values.CopyTo(_values, index);
     }
@@ -290,47 +290,11 @@ public class DataContainer<T>
         Console.WriteLine(output);
     }
     
-}
-
-
-public class Tensor : DataContainer<double>
-{
-    public Tensor(Shape shape) : base(shape)
-    {
-    }
-
-    public Tensor(DataContainer<double> self): base(self)
-    {
-        
-    }
-
-    public Tensor(Shape shape, double initialValue) : base(shape, initialValue)
-    {
-    }
-
-    public Tensor(Shape shape, double[] values) : base(shape, values)
-    {
-    }
-
-
-    public double GetLastLengthSquared(int size, params int[] start)
-    {
-        double sum = 0;
-        var startIndex = _shape.GetIndex(start);
-            
-        for (var i = 0; i < size; i++)
-        {
-            sum += System.Math.Pow(_values[startIndex + i], 2);
-        }
-
-        return sum;
-    }
-
-
-    public Tensor UpDimension()
+    public Tensor<T> UpDimension()
     {
         var resultShape = Shape.Of(_shape, Shape.Of(1));
-        return new Tensor(resultShape, _values);
+        return new Tensor<T>(resultShape, _values);
     }
+    
     
 }

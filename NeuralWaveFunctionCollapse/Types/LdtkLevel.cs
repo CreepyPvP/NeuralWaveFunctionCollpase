@@ -41,7 +41,7 @@ public class LdtkLayerInstance
         
     }
 
-    public LdtkLayerInstance(DataContainer<int> from, string identifier)
+    public LdtkLayerInstance(Tensor<int> from, string identifier)
     {
         if (from.GetShape().GetDimensionality() != 2)
             throw new Exception("Invalid data container");
@@ -60,9 +60,9 @@ public class LdtkLayerInstance
     }
 
 
-    public Tensor ToTensor()
+    public Tensor<double> ToTensor()
     {
-        var result = new Tensor(Shape.Of(__cWid, __cHei));
+        var result = new Tensor<double>(Shape.Of(__cWid, __cHei));
 
         for (var x = 0; x < __cWid; x++)
         {
