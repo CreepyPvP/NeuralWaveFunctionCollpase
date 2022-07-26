@@ -26,7 +26,7 @@ public static class TensorOperations
 
         output.GetShape().ForEach(o =>
         {
-            Variable v = Variable.Of(0, false);
+            var v = Variable.Of(0, false);
             m.GetShape().ForEach(k =>
             {
                 var position = k.ArrJoin(o);

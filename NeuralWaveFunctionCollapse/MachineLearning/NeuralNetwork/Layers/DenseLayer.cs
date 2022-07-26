@@ -30,7 +30,7 @@ public class DenseLayer: Layer
     public override void Build(IDataSource source)
     {
         _weights = new Tensor<Variable>(Shape.Of(source.GetOutputShape(), _shape));
-        _weights.SetValue(Variable.Of(2), 0, 0);
+        _weights.SetValue(Variable.Of(5), 0, 0);
         _weights.SetValue(Variable.Of(3), 1, 0);
         _weights.SetValue(Variable.Of(0.5), 2, 0);
 

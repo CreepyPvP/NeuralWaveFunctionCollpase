@@ -23,8 +23,7 @@ class BenchmarkStructure
         input.SetValue(0.5, 1);
         input.SetValue(2, 2);
 
-        network.Simulate(input).Print();
-
+        network.Classify(input).Evaluate().Print();
     }
 
 }

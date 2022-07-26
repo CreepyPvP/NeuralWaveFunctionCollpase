@@ -25,6 +25,12 @@ public class InputDataSource : IDataSource
     {
         _shape = shape;
         _output = new Tensor<Variable>(_shape);
+
+        var rawOutput = _output.GetRaw();
+        for (var i = 0; i < _shape.Size(); i++)
+        {
+            rawOutput[i] = Variable.Of(0, false);
+        }
     }
     
     
@@ -50,7 +56,7 @@ public class InputDataSource : IDataSource
         
         tensor.GetShape().ForEach(pos =>
         {
-           _output.SetValue(Variable.Of(tensor.GetValue(pos),  false), pos); 
+           _output.GetValue(pos).Set(tensor.GetValue(pos));
         });
     }
     
