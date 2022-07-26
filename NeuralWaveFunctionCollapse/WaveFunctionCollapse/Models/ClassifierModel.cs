@@ -57,7 +57,7 @@ public class ClassifierModel<TTrainConfiguration>: IWaveFunctionModel
             }
         }
         
-        _classifier.Train(trainingData, labels, configuration);
+        _classifier.TrainClassifier(trainingData, labels, configuration);
     }
     
     public bool Impacts(int collapseX, int collapseY, int posX, int posY)
@@ -86,7 +86,7 @@ public class ClassifierModel<TTrainConfiguration>: IWaveFunctionModel
             }
         }
 
-        return _classifier.Classify(request);
+        return _classifier.Classify(request).Evaluate();
     }
 
 

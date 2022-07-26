@@ -1,11 +1,12 @@
-﻿using NeuralWaveFunctionCollapse.Util;
+﻿using NeuralWaveFunctionCollapse.Math.AutoDif;
+using NeuralWaveFunctionCollapse.Util;
 
 namespace NeuralWaveFunctionCollapse.Math;
 
 public static class TensorOperations
 {
 
-    public static Tensor<double> Mul(this Tensor<double> self, Tensor<double> m, bool disableChecks = false)
+    public static Tensor<Variable> Mul(this Tensor<Variable> self, Tensor<Variable> m, bool disableChecks = false)
     {
         // equivalent to self x m
         
@@ -21,11 +22,11 @@ public static class TensorOperations
             if (!isValidOperation) throw new Exception("Invalid Tensor multiplication");
         }
 
-        var output = new Tensor<double>(Shape.Sub(self.GetShape(), m.GetShape().GetDimensionality()));
+        var output = new Tensor<Variable>(Shape.Sub(self.GetShape(), m.GetShape().GetDimensionality()));
 
         output.GetShape().ForEach(o =>
         {
-            double v = 0;
+            Variable v = Variable.Of(0, false);
             m.GetShape().ForEach(k =>
             {
                 var position = k.ArrJoin(o);
@@ -52,6 +53,23 @@ public static class TensorOperations
 
         return sum;
     }
-    
-    
+
+
+    public static Tensor<double> Evaluate(this Tensor<Variable> self)
+    {
+        var result = new Tensor<double>(self.GetShape());
+
+        var values = new Dictionary<Variable, double>();
+        
+        self.GetShape().ForEach(pos =>
+        {
+            var variable = self.GetValue(pos);
+            variable.Values(values);
+            result.SetValue(values[variable], pos);
+        });
+
+        return result;
+    }
+
+
 }

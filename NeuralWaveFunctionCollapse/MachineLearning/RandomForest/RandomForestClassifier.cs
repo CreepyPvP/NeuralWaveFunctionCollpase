@@ -1,4 +1,6 @@
 using NeuralWaveFunctionCollapse.Math;
+using NeuralWaveFunctionCollapse.Math.AutoDif;
+using NeuralWaveFunctionCollapse.Math.Optimisation;
 using NeuralWaveFunctionCollapse.Util;
 
 namespace NeuralWaveFunctionCollapse.MachineLearning.RandomForest;
@@ -40,7 +42,7 @@ public class RandomForestClassifier: IClassifier<RandomForestTrainingConfigurati
      *  data: INDEX x DATAPOINT
      *  labels: INDEX
      */
-    public void Train(Tensor<double> input, Tensor<int> labels, RandomForestTrainingConfiguration configuration)
+    public void TrainClassifier(Tensor<double> input, Tensor<int> labels, RandomForestTrainingConfiguration configuration)
     {
         if (input.GetShape().GetDimensionality() <= 1)
             throw new Exception("Cant train on 1-dimensional data");
@@ -95,14 +97,14 @@ public class RandomForestClassifier: IClassifier<RandomForestTrainingConfigurati
         return result;
     }
 
-    public Tensor<double> Classify(Tensor<double> input)
+    public Tensor<Variable> Classify(Tensor<double> input)
     {
         // TODO check input
         
         if (_treeStorage == null || _indexStorage == null)
             throw new Exception("Random forest is still untrained");
         
-        var output = new Tensor<double>(Shape.Of(_outputClasses));
+        var output = new Tensor<Variable>(Shape.Of(_outputClasses));
 
         var treeCount = _treeStorage.GetShape().GetSizeAt(0);
         
@@ -113,7 +115,9 @@ public class RandomForestClassifier: IClassifier<RandomForestTrainingConfigurati
 
             var prediction = tree.Predict(new Tensor<double>(trimmedData));
             
-            output.SetValue(output.GetValue(prediction) + 1.0 / treeCount, prediction);
+            // TODO: set output.GetValue default!
+            
+            output.SetValue(output.GetValue(prediction) + (1.0 / treeCount), prediction);
         }
 
         return output;

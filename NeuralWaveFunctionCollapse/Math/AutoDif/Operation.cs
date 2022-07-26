@@ -6,6 +6,8 @@ public interface IOperation
     double GetValue();
 
     double GetValues(Dictionary<Variable, double> valueStore, Dictionary<Variable, List<Variable>> dependants);
+    
+    double GetValues(Dictionary<Variable, double> valueStore);
 
     Variable[] GetDependencies();
 
@@ -30,6 +32,11 @@ public readonly struct Identity : IOperation
     }
 
     public double GetValues(Dictionary<Variable, double> valueStore, Dictionary<Variable, List<Variable>> dependants)
+    {
+        return _value;
+    }
+
+    public double GetValues(Dictionary<Variable, double> valueStore)
     {
         return _value;
     }
@@ -69,6 +76,17 @@ public readonly struct Multiply: IOperation
         
         if(!valueStore.ContainsKey(_var2))
             _var2.Values(valueStore, dependants);
+
+        return valueStore[_var1] * valueStore[_var2];
+    }
+    
+    public double GetValues(Dictionary<Variable, double> valueStore)
+    {
+        if(!valueStore.ContainsKey(_var1))
+            _var1.Values(valueStore);
+        
+        if(!valueStore.ContainsKey(_var2))
+            _var2.Values(valueStore);
 
         return valueStore[_var1] * valueStore[_var2];
     }
@@ -118,6 +136,17 @@ public readonly struct Add : IOperation
 
         return valueStore[_var1] + valueStore[_var2];
     }
+    
+    public double GetValues(Dictionary<Variable, double> valueStore)
+    {
+        if(!valueStore.ContainsKey(_var1))
+            _var1.Values(valueStore);
+        
+        if(!valueStore.ContainsKey(_var2))
+            _var2.Values(valueStore);
+
+        return valueStore[_var1] + valueStore[_var2];
+    }
 
     public Variable[] GetDependencies()
     {
@@ -152,6 +181,14 @@ public readonly struct Invert : IOperation
     {
         if(!valueStore.ContainsKey(_var))
             _var.Values(valueStore, dependants);
+
+        return valueStore[_var];
+    }
+    
+    public double GetValues(Dictionary<Variable, double> valueStore)
+    {
+        if(!valueStore.ContainsKey(_var))
+            _var.Values(valueStore);
 
         return valueStore[_var];
     }

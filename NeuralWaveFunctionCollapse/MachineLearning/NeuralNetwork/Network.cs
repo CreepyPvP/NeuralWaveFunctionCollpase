@@ -1,30 +1,36 @@
 using NeuralWaveFunctionCollapse.Math;
 using NeuralWaveFunctionCollapse.Math.AutoDif;
 using NeuralWaveFunctionCollapse.Math.Optimisation;
+using NeuralWaveFunctionCollapse.Util;
 
 namespace NeuralWaveFunctionCollapse.MachineLearning. NeuralNetwork;
 
 
 
-public readonly struct NeuronalNetworkTrainingConfiguration<TOptimiserConfiguration>
+public readonly struct NeuronalNetworkTrainingConfig
 {
+    
+    // Loss(output, labels)
+    public readonly Func<Tensor<Variable>, Tensor<double>, Variable> Loss;
 
-    public readonly Func<Tensor<double>, Tensor<double>, Variable> Loss;
+    public readonly IOptimiser Optimiser;
 
-    public readonly IOptimiser<TOptimiserConfiguration> Optimiser;
+    public readonly int Epochs;
 
 }
 
 
-public class Network: IClassifier<>
+public class Network: IClassifier<NeuronalNetworkTrainingConfig>
 {
 
     private readonly GraphNode<Layer> _graph;
 
     private InputDataSource _input;
-    private IDataSource _output;
-    
-    
+    private Shape _inputShape;
+
+    private Tensor<Variable> _output;
+
+
     private Network(GraphNode<Layer> graph)
     {
         _graph = graph;
@@ -32,25 +38,24 @@ public class Network: IClassifier<>
 
     public void Compile(Shape input)
     {
+        _inputShape = input;
+        
         _input = new InputDataSource(input);
-        _graph.GetValue().RegisterInput(_input);
+        _graph.GetValue().Build(_input);
         
         _graph.ForEach(layer =>
         {
-            layer.GetChildren().ForEach(child => child.GetValue().RegisterInput(layer.GetValue()));
-            
-            // TODO: add proper output neuron selection (maybe by id??)
-            if (layer.GetChildren().Count == 0) _output = layer.GetValue();
+            layer.GetChildren().ForEach(child => child.GetValue().Build(layer.GetValue()));
+
+            if (layer.GetChildren().Count == 0) _output = layer.GetValue().GetValue();
         });
     }
 
-    public Tensor<double> Simulate(Tensor<double> input, bool training = true, bool disableChecks = false)
+    public Tensor<double> Simulate(Tensor<double> input, bool disableChecks = false)
     {
-        _output.Flush();
-
         _input.SetInput(input, disableChecks);
 
-        return _output.GetData();
+        return _output.Evaluate();
     }
     
     public static Network Sequential(params Layer[] layers)
@@ -62,21 +67,54 @@ public class Network: IClassifier<>
         foreach (var layer in layers)
         {
             var current = new GraphNode<Layer>(layer);
-            if (root == null) root = current;
+            root ??= current;
         }
 
         return new Network(root!);
     }
 
-    public Tensor<double> Classify(Tensor<double> input)
+    public Tensor<Variable> Classify(Tensor<double> input)
     {
-        throw new NotImplementedException();
+        _input.SetInput(input);
+        return _output;
     }
 
-    public void Train(Tensor<double> input, Tensor<int> labels, NeuronalNetworkTrainingConfiguration configuration)
+    
+    // input: index x datapoint
+    // label: index
+    public void TrainClassifier(Tensor<double> input, Tensor<int> labels, NeuronalNetworkTrainingConfig config)
     {
-        throw new NotImplementedException();
-    }
+        var data = input.ToArray();
+        var labelArr = labels.ToArray();
+        
+        var random = new SeededRandom(43345);
 
+        var indices = new int[data.Length];
+        for (var i = 0; i < indices.Length; i++)
+        {
+            indices[i] = i;
+        }
+
+        var expectedOutput = new Tensor<double>(_inputShape, 0);
+        var prevClass = 0;
+        
+        for (int epoch = 0; epoch < config.Epochs; epoch++)
+        {
+            random.Shuffle(indices);
+
+            for (var i = 0; i < data.Length; i++)
+            {
+                var index = indices[i];
+
+                var expectedClass = labelArr[index].GetValue(0);
+                
+                expectedOutput.SetValue(0, prevClass);
+                expectedOutput.SetValue(1, expectedClass);
+                prevClass = expectedClass;
+                
+                config.Optimiser.Minimize(config.Loss(Classify(data[index]), expectedOutput));   
+            }
+        }
+    }
 
 }

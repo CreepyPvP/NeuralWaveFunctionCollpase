@@ -1,4 +1,6 @@
 ﻿using NeuralWaveFunctionCollapse.Math;
+using NeuralWaveFunctionCollapse.Math.AutoDif;
+using NeuralWaveFunctionCollapse.Math.Optimisation;
 
 namespace NeuralWaveFunctionCollapse.MachineLearning;
 
@@ -8,11 +10,11 @@ public interface IClassifier
     
 }
 
-public interface IClassifier<TConfiguration>
+public interface IClassifier<TClassifierConfig>
 {
 
-    Tensor<double> Classify(Tensor<double> input);
+    Tensor<Variable> Classify(Tensor<double> input);
 
-    void Train(Tensor<double> input, Tensor<int> labels, TConfiguration configuration);
+    void TrainClassifier(Tensor<double> input, Tensor<int> labels, TClassifierConfig config);
 
 }

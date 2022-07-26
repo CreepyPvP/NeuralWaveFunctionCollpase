@@ -36,6 +36,11 @@ public class Variable
         values[this] = _source.GetValues(values, dependants);
     }
     
+    public void Values(Dictionary<Variable, double> values)
+    {
+        values[this] = _source.GetValues(values);
+    }
+    
 
     public Dictionary<Variable, double> Derive()
     {

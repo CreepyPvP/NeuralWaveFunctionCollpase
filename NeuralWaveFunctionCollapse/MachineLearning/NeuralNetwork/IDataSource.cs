@@ -1,4 +1,5 @@
 ﻿using NeuralWaveFunctionCollapse.Math;
+using NeuralWaveFunctionCollapse.Math.AutoDif;
 
 namespace NeuralWaveFunctionCollapse.MachineLearning.NeuralNetwork;
 
@@ -7,9 +8,9 @@ public interface IDataSource
 
     Shape GetOutputShape();
     
-    Tensor<double> GetData();
+    void Build(IDataSource source);
 
-    void Flush();
+    Tensor<Variable> GetValue();
 
 }
 
@@ -18,11 +19,12 @@ public class InputDataSource : IDataSource
 {
 
     private readonly Shape _shape;
-    private Tensor<double>? _output = null;
+    private readonly Tensor<Variable> _output;
 
     public InputDataSource(Shape shape)
     {
         _shape = shape;
+        _output = new Tensor<Variable>(_shape);
     }
     
     
@@ -31,16 +33,14 @@ public class InputDataSource : IDataSource
         return _shape;
     }
 
-    public Tensor<double> GetData()
+    public void Build(IDataSource source)
     {
-        if (_output == null) throw new Exception("No input data was provided. This should not happen");
-        
-        return _output;
+
     }
 
-    public void Flush()
+    public Tensor<Variable> GetValue()
     {
-        _output = null;
+        return _output;
     }
 
     public void SetInput(Tensor<double> tensor, bool disableChecks = false)
@@ -48,7 +48,10 @@ public class InputDataSource : IDataSource
         if (!disableChecks && !_shape.Equals(tensor.GetShape()))
             throw new Exception("Shape of input tensor does not match required shape");
         
-        _output = tensor;
+        tensor.GetShape().ForEach(pos =>
+        {
+           _output.SetValue(Variable.Of(tensor.GetValue(pos),  false), pos); 
+        });
     }
     
 }

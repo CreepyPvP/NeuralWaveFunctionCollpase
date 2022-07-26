@@ -4,16 +4,13 @@ namespace NeuralWaveFunctionCollapse.Math.Optimisation;
 
 
 
+
+
 public interface IOptimiser
 {
-    
-}
 
-public interface IOptimiser<in TConfiguration>: IOptimiser
-{
+    void Minimize(Variable fun, Variable[] adjustable);
 
-    void Minimize(Variable fun, Variable[] adjustable, TConfiguration configuration);
-
-    void Minimize(Variable fun, TConfiguration configuration);
+    void Minimize(Variable fun);
 
 }

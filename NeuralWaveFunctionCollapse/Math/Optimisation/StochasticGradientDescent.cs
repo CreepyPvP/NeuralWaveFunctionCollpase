@@ -12,12 +12,22 @@ public readonly struct SgdConfig
 }
 
 
-public class StochasticGradientDescentOptimiser: IOptimiser<SgdConfig>
+public class StochasticGradientDescentOptimiser: IOptimiser
 {
-    
-    public void Minimize(Variable fun, Variable[] adjustable, SgdConfig configuration)
+
+
+    private readonly SgdConfig _config;
+
+
+    public StochasticGradientDescentOptimiser(SgdConfig config)
     {
-        for (var i = 0; i < configuration.Iterations; i++)
+        _config = config;
+    }
+    
+    
+    public void Minimize(Variable fun, Variable[] adjustable)
+    {
+        for (var i = 0; i < _config.Iterations; i++)
         {
             
             var derivatives = fun.Derive();
@@ -25,22 +35,22 @@ public class StochasticGradientDescentOptimiser: IOptimiser<SgdConfig>
             {
                 var derivative = derivatives[variable];
                 
-                variable.Set(variable.Value() - configuration.LearnRate * derivative);
+                variable.Set(variable.Value() - _config.LearnRate * derivative);
             }
             
         }
     }
 
-    public void Minimize(Variable fun, SgdConfig configuration)
+    public void Minimize(Variable fun)
     {
-        for (var i = 0; i < configuration.Iterations; i++)
+        for (var i = 0; i < _config.Iterations; i++)
         {
             var derivatives = fun.Derive();
             foreach (var param in derivatives.Keys)
             {
                 if (!param.IsIdentity()) continue;
                 
-                param.Set(param.Value() - configuration.LearnRate * derivatives[param]);
+                param.Set(param.Value() - _config.LearnRate * derivatives[param]);
             }
         }
     }

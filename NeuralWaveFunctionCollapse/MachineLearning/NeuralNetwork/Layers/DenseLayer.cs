@@ -1,4 +1,5 @@
 using NeuralWaveFunctionCollapse.Math;
+using NeuralWaveFunctionCollapse.Math.AutoDif;
 
 namespace NeuralWaveFunctionCollapse.MachineLearning.NeuralNetwork.Layers;
 
@@ -7,11 +8,9 @@ public class DenseLayer: Layer
 
     private readonly Shape _shape;
     
-    private Tensor<double>? _weights = null;
+    private Tensor<Variable>? _weights = null;
 
-    private IDataSource _input;
-    private Tensor<double>? _output = null;
-
+    private Tensor<Variable> _value;
 
     public DenseLayer(Shape shape) : base("dense_layer")
     {
@@ -23,41 +22,25 @@ public class DenseLayer: Layer
         _shape = shape;
     }
 
-    public override void RegisterInput(IDataSource source)
-    {
-        _input = source;
-        
-        _weights = new Tensor<double>(Shape.Of(source.GetOutputShape(), _shape));
-        _weights.SetValue(5, 0, 0);
-        _weights.SetValue(3, 1, 0);
-        _weights.SetValue(0.5, 2, 0);
-
-        // TODO populate weights randomly
-    }
-
     public override Shape GetOutputShape()
     {
         return _shape;
     }
 
-    public override Tensor<double> GetData()
+    public override void Build(IDataSource source)
     {
-        if (_weights == null) throw new Exception("Trying to compute with a non-compiled model");
-        
-        if (_output != null)
-        {
-            return _output;
-        }
+        _weights = new Tensor<Variable>(Shape.Of(source.GetOutputShape(), _shape));
+        _weights.SetValue(Variable.Of(2), 0, 0);
+        _weights.SetValue(Variable.Of(3), 1, 0);
+        _weights.SetValue(Variable.Of(0.5), 2, 0);
 
-        _output = _weights.Mul(_input.GetData());
-        return _output;
+        // TODO populate weights randomly
+        
+        _value = _weights.Mul(source.GetValue());
     }
 
-    public override void Flush()
+    public override Tensor<Variable> GetValue()
     {
-        _output = null;
-        
-        _input.Flush();
+        return _value;
     }
-    
 }
