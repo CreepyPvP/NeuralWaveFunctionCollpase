@@ -2,6 +2,7 @@ using NeuralWaveFunctionCollapse.Math;
 using NeuralWaveFunctionCollapse.Math.AutoDif;
 using NeuralWaveFunctionCollapse.Math.Optimisation;
 using NeuralWaveFunctionCollapse.Util;
+using NeuralWaveFunctionCollapse.WaveFunctionCollapse.Models;
 
 namespace NeuralWaveFunctionCollapse.MachineLearning.RandomForest;
 
@@ -15,7 +16,7 @@ public readonly struct RandomForestTrainingConfiguration
 }
 
 
-public class RandomForestClassifier: IClassifier<RandomForestTrainingConfiguration>
+public class RandomForestClassifier: IWaveFunctionClassifier<RandomForestTrainingConfiguration>
 {
 
     // INDEX
@@ -73,6 +74,11 @@ public class RandomForestClassifier: IClassifier<RandomForestTrainingConfigurati
             
             tree.Train(trainData, labels);
         }
+    }
+
+    public void Build(int kernelSize, int outputClasses, int inputDimensions)
+    {
+        
     }
 
     private Tensor<int> GenerateParamCombinations(int length, Shape shape, int count, SeededRandom random)

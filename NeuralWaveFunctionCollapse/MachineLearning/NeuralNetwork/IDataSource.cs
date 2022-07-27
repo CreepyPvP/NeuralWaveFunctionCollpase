@@ -1,5 +1,6 @@
 ﻿using NeuralWaveFunctionCollapse.Math;
 using NeuralWaveFunctionCollapse.Math.AutoDif;
+using NeuralWaveFunctionCollapse.Util;
 
 namespace NeuralWaveFunctionCollapse.MachineLearning.NeuralNetwork;
 
@@ -8,7 +9,7 @@ public interface IDataSource
 
     Shape GetOutputShape();
     
-    void Build(IDataSource source);
+    void Build(IDataSource source, SeededRandom random);
 
     Tensor<Variable> GetValue();
 
@@ -18,16 +19,14 @@ public interface IDataSource
 public class InputDataSource : IDataSource
 {
 
-    private readonly Shape _shape;
     private readonly Tensor<Variable> _output;
 
     public InputDataSource(Shape shape)
     {
-        _shape = shape;
-        _output = new Tensor<Variable>(_shape);
+        _output = new Tensor<Variable>(shape);
 
         var rawOutput = _output.GetRaw();
-        for (var i = 0; i < _shape.Size(); i++)
+        for (var i = 0; i < shape.Size(); i++)
         {
             rawOutput[i] = Variable.Of(0, false);
         }
@@ -36,10 +35,10 @@ public class InputDataSource : IDataSource
     
     public Shape GetOutputShape()
     {
-        return _shape;
+        return _output.GetShape();
     }
 
-    public void Build(IDataSource source)
+    public void Build(IDataSource source, SeededRandom random)
     {
 
     }
@@ -51,9 +50,12 @@ public class InputDataSource : IDataSource
 
     public void SetInput(Tensor<double> tensor, bool disableChecks = false)
     {
-        if (!disableChecks && !_shape.Equals(tensor.GetShape()))
-            throw new Exception("Shape of input tensor does not match required shape");
-        
+        if (!disableChecks)
+        {
+            if(!_output.GetShape().Equals(tensor.GetShape()))
+                throw new Exception("Shape of input tensor does not match required shape");   
+        }
+
         tensor.GetShape().ForEach(pos =>
         {
            _output.GetValue(pos).Set(tensor.GetValue(pos));

@@ -8,14 +8,16 @@ public class ClassifierModel<TTrainConfiguration>: IWaveFunctionModel
 
 
     private readonly int _radius;
+    private readonly int _outputClasses;
     
-    private IClassifier<TTrainConfiguration> _classifier;
+    private IWaveFunctionClassifier<TTrainConfiguration> _classifier;
 
     
-    public ClassifierModel(IClassifier<TTrainConfiguration> classifier, int radius)
+    public ClassifierModel(IWaveFunctionClassifier<TTrainConfiguration> classifier, int radius, int outputClasses)
     {
         _classifier = classifier;
         _radius = radius;
+        _outputClasses = outputClasses;
     }
 
     // width x height x inputLayerCount
@@ -57,6 +59,7 @@ public class ClassifierModel<TTrainConfiguration>: IWaveFunctionModel
             }
         }
         
+        _classifier.Build(GetKernelSize(_radius), _outputClasses, input.GetShape().GetSizeAt(2));
         _classifier.TrainClassifier(trainingData, labels, configuration);
     }
     

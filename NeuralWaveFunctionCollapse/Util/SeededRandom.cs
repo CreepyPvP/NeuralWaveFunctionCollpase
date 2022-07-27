@@ -82,6 +82,11 @@ public class SeededRandom
         return mean + stdDev * randStdNormal;
     }
 
+    public double NextDouble()
+    {
+        return _random.NextDouble();
+    }
+
     // Totally not copied from SO
     public void Shuffle<T>(T[] arr)
     {

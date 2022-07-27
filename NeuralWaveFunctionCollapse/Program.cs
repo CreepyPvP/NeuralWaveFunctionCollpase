@@ -1,11 +1,16 @@
 ﻿using NeuralWaveFunctionCollapse.Benchmark;
 using NeuralWaveFunctionCollapse.IO;
 using NeuralWaveFunctionCollapse.IO.Impl;
+using NeuralWaveFunctionCollapse.MachineLearning.NeuralNetwork;
+using NeuralWaveFunctionCollapse.MachineLearning.NeuralNetwork.Layers;
 using NeuralWaveFunctionCollapse.MachineLearning.RandomForest;
 using NeuralWaveFunctionCollapse.Math;
+using NeuralWaveFunctionCollapse.Math.AutoDif;
+using NeuralWaveFunctionCollapse.Math.Optimisation;
 using NeuralWaveFunctionCollapse.Types;
 using NeuralWaveFunctionCollapse.WaveFunctionCollapse;
 using NeuralWaveFunctionCollapse.WaveFunctionCollapse.Models;
+using NeuralWaveFunctionCollapse.WaveFunctionCollapse.Models.Classifiers;
 
 namespace NeuralWaveFunctionCollapse;
 
@@ -14,22 +19,35 @@ class Program
 
     public static void Main()
     {
-        /*
         var ioManager = new IoManager();
         ioManager.RegisterImporter(new LdtkLevelImporter());
-
-        var level = ioManager.Load<LdtkLevel>("C:/Users/Luis/Desktop/maps/maps/Level_1.ldtkl");
-
-        var input = level.GetLayer("StructureLayer").ToTensor().UpDimension();
-
         
-        var forest = new RandomForestClassifier(100, 5456);
-
-        var model = new ClassifierModel(forest, 2);
-
+        var level = ioManager.Load<LdtkLevel>("C:/Users/inter/Desktop/maps/maps/Level_1.ldtkl");
+        var input = level.GetLayer("StructureLayer").ToTensor().UpDimension();
+        
         var possibleOutputStates = 5;
 
-        model.Build(input, possibleOutputStates);
+        var network = 
+            Network.Sequential(
+                new DenseLayer(Shape.Of(possibleOutputStates))
+            );
+        
+        var model = new ClassifierModel<NeuralNetworkTrainingConfig>(
+            new NeuralNetworkClassifier(network), 
+            2,
+            possibleOutputStates);
+
+        var config = new NeuralNetworkTrainingConfig()
+        {
+            Epochs = 1000,
+            Optimiser = new StochasticGradientDescentOptimiser(new SgdConfig() {
+                Iterations = 2,
+                LearnRate = 0.05
+            }),
+            Loss = (Tensor<Variable> output, Tensor<double> labels) => Variable.Of(0)
+        };
+
+        model.Build(input, config);
 
 
 
@@ -38,41 +56,40 @@ class Program
         // grid.GetOutput().Print(true);
 
 
-        var test = new Tensor(Shape.Of(24));
-        test.SetValue(0, 0);
-        test.SetValue(0, 1);
-        test.SetValue(1, 2);
-        test.SetValue(0, 3);
-        test.SetValue(0, 4);
+        var test = new Tensor<double>(Shape.Of(24, 1));
+        test.SetValue(0, 0, 0);
+        test.SetValue(0, 1, 0);
+        test.SetValue(1, 2, 0);
+        test.SetValue(0, 3, 0);
+        test.SetValue(0, 4, 0);
 
-        test.SetValue(0, 5);
-        test.SetValue(0, 6);
-        test.SetValue(1, 7);
-        test.SetValue(0, 8);
-        test.SetValue(0, 9);
+        test.SetValue(0, 5, 0);
+        test.SetValue(0, 6, 0);
+        test.SetValue(1, 7, 0);
+        test.SetValue(0, 8, 0);
+        test.SetValue(0, 9, 0);
         
-        test.SetValue(0, 10);
-        test.SetValue(0, 11);
-        test.SetValue(0, 12);
-        test.SetValue(0, 13);
+        test.SetValue(0, 10, 0);
+        test.SetValue(0, 11, 0);
+        test.SetValue(0, 12, 0);
+        test.SetValue(0, 13, 0);
         
-        test.SetValue(0, 14);
-        test.SetValue(0, 15);
-        test.SetValue(2, 16);
-        test.SetValue(3, 17);
-        test.SetValue(3, 18);
+        test.SetValue(0, 14, 0);
+        test.SetValue(0, 15, 0);
+        test.SetValue(2, 16, 0);
+        test.SetValue(3, 17, 0);
+        test.SetValue(3, 18, 0);
         
-        test.SetValue(0, 19);
-        test.SetValue(0, 20);
-        test.SetValue(2, 21);
-        test.SetValue(0, 22);
-        test.SetValue(0, 23);
+        test.SetValue(0, 19, 0);
+        test.SetValue(0, 20, 0);
+        test.SetValue(2, 21, 0);
+        test.SetValue(0, 22, 0);
+        test.SetValue(0, 23, 0);
         
-        forest.Classify(test).Print();
+        network.Simulate(test).Evaluate().Print();
         
         // Console.WriteLine("Avg time: " + benchmark.AvgTime);    // old system: 1,7709 (50x50 grid, 3 radius, 50 trees)
-        */
-        AutoDif.Start();
+        
     }
     
 }

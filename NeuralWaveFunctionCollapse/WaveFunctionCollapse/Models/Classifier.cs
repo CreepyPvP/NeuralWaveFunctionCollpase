@@ -2,19 +2,17 @@
 using NeuralWaveFunctionCollapse.Math.AutoDif;
 using NeuralWaveFunctionCollapse.Math.Optimisation;
 
-namespace NeuralWaveFunctionCollapse.MachineLearning;
+namespace NeuralWaveFunctionCollapse.WaveFunctionCollapse.Models;
 
 
-public interface IClassifier
-{
-    
-}
 
-public interface IClassifier<TClassifierConfig>
+public interface IWaveFunctionClassifier<TClassifierConfig>
 {
 
     Tensor<Variable> Classify(Tensor<double> input);
 
     void TrainClassifier(Tensor<double> input, Tensor<int> labels, TClassifierConfig config);
+
+    void Build(int kernelSize, int outputDimensions, int inputDimensions);
 
 }

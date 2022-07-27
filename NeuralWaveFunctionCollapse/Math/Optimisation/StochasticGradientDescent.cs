@@ -4,11 +4,11 @@ namespace NeuralWaveFunctionCollapse.Math.Optimisation;
 
 
 
-public readonly struct SgdConfig
+public struct SgdConfig
 {
-    public readonly double LearnRate { get; }
-    
-    public readonly int Iterations { get; }
+    public double LearnRate;
+
+    public int Iterations;
 }
 
 

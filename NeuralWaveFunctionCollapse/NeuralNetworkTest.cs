@@ -6,11 +6,8 @@ using NeuralWaveFunctionCollapse.Math;
 namespace NeuralWaveFunctionCollapse;
 
 
-class BenchmarkStructure
+class NeuralNetworkTest
 {
-    private static readonly int Width = 100;
-    private static readonly int Height = 100;
-
     public static void Start()
     {
 
@@ -23,7 +20,7 @@ class BenchmarkStructure
         input.SetValue(0.5, 1);
         input.SetValue(2, 2);
 
-        network.Classify(input).Evaluate().Print();
+        network.Simulate(input).Evaluate().Print();
     }
 
 }
