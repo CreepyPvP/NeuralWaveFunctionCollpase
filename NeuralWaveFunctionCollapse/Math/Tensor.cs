@@ -1,3 +1,4 @@
+using NeuralWaveFunctionCollapse.Math.AutoDif;
 using NeuralWaveFunctionCollapse.Util;
 
 namespace NeuralWaveFunctionCollapse.Math;
@@ -296,5 +297,28 @@ public class Tensor<T>
         return new Tensor<T>(resultShape, _values);
     }
     
+    
+    
+    
+    
+    public Tensor<TR> Compare<T2, TR>(Tensor<T2> arg1, Func<T, T2, TR> func)
+    {
+        var result = new Tensor<TR>(_shape);
+
+        for (var i = 0; i < _values.Length; i++)
+        {
+            result._values[i] = func(_values[i], arg1._values[i]);
+        }
+
+        return result;
+    }
+
+    public void ForEach(Action<T> action)
+    {
+        foreach (var value in _values)
+        {
+            action(value);
+        }
+    }
     
 }

@@ -84,7 +84,7 @@ public class Network
             {
                 var index = indices[i];
 
-                config.Optimiser.Minimize(config.Loss(Simulate(data[index]), labelArr[index]));   
+                config.Optimiser.Minimize(config.Loss(Simulate(data[index], true), labelArr[index]));   
             }
         }
     }

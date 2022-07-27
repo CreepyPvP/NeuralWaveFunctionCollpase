@@ -3,6 +3,7 @@ using NeuralWaveFunctionCollapse.IO;
 using NeuralWaveFunctionCollapse.IO.Impl;
 using NeuralWaveFunctionCollapse.MachineLearning.NeuralNetwork;
 using NeuralWaveFunctionCollapse.MachineLearning.NeuralNetwork.Layers;
+using NeuralWaveFunctionCollapse.MachineLearning.NeuralNetwork.Loss;
 using NeuralWaveFunctionCollapse.MachineLearning.RandomForest;
 using NeuralWaveFunctionCollapse.Math;
 using NeuralWaveFunctionCollapse.Math.AutoDif;
@@ -14,6 +15,21 @@ using NeuralWaveFunctionCollapse.WaveFunctionCollapse.Models.Classifiers;
 
 namespace NeuralWaveFunctionCollapse;
 
+
+/*
+ * TODO:
+ *
+ * + Optimisation
+ *      - Hash list for entropy searching
+ *      - Faster shape foreach implementation
+ *      - Object pooling
+ *
+ * + Features
+ *      - Activation functions (Relu)
+ *      - Better wave function classier model data preparation
+ *      - Saving / Loading models
+ *      - Delayed model training
+ */
 class Program
 {
 
@@ -22,14 +38,15 @@ class Program
         var ioManager = new IoManager();
         ioManager.RegisterImporter(new LdtkLevelImporter());
         
-        var level = ioManager.Load<LdtkLevel>("C:/Users/inter/Desktop/maps/maps/Level_1.ldtkl");
+        var level = ioManager.Load<LdtkLevel>("C:/Users/Luis/Desktop/maps/maps/Level_1.ldtkl");
         var input = level.GetLayer("StructureLayer").ToTensor().UpDimension();
         
         var possibleOutputStates = 5;
 
         var network = 
             Network.Sequential(
-                new DenseLayer(Shape.Of(possibleOutputStates))
+                new DenseLayer(Shape.Of(possibleOutputStates)),
+                new DenseLayer(Shape.Of(10))
             );
         
         var model = new ClassifierModel<NeuralNetworkTrainingConfig>(
@@ -42,9 +59,9 @@ class Program
             Epochs = 1000,
             Optimiser = new StochasticGradientDescentOptimiser(new SgdConfig() {
                 Iterations = 2,
-                LearnRate = 0.05
+                LearnRate = 0.03
             }),
-            Loss = (Tensor<Variable> output, Tensor<double> labels) => Variable.Of(0)
+            Loss = MeanSquaredError.Of
         };
 
         model.Build(input, config);
