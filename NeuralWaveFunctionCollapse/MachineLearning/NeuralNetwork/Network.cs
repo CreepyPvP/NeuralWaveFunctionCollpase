@@ -94,11 +94,22 @@ public class Network
         GraphNode<Layer>? root = null;
 
         if (layers.Length == 0) throw new Exception("Cannot create a network from 0 layers");
-        
+
+        GraphNode<Layer>? ptr = null;
+
         foreach (var layer in layers)
         {
             var current = new GraphNode<Layer>(layer);
-            root ??= current;
+            if (root == null || ptr == null)
+            {
+                root = current;
+            }
+            else
+            {
+                ptr.Add(current);
+            }
+            
+            ptr = current;
         }
 
         return new Network(root!);

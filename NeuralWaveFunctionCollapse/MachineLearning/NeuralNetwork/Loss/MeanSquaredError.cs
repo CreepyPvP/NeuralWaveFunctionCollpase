@@ -16,6 +16,8 @@ public static class MeanSquaredError
         {
             result += var * var;
         });
+        
+        // Console.WriteLine(result.Value());
 
         return result;
     }

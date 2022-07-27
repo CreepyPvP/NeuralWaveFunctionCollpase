@@ -11,7 +11,7 @@ class NeuralNetworkTest
     public static void Start()
     {
 
-        var network = Network.Sequential(new DenseLayer(Shape.Of(1)));
+        var network = Network.Sequential(new DenseLayer(Shape.Of(1), Activation.ReLu));
 
         network.Compile(Shape.Of(3));
 

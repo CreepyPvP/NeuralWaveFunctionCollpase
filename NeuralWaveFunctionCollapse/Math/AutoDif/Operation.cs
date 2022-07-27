@@ -182,7 +182,7 @@ public readonly struct Invert : IOperation
         if(!valueStore.ContainsKey(_var))
             _var.Values(valueStore, dependants);
 
-        return valueStore[_var];
+        return 1 / valueStore[_var];
     }
     
     public double GetValues(Dictionary<Variable, double> valueStore)
@@ -190,7 +190,7 @@ public readonly struct Invert : IOperation
         if(!valueStore.ContainsKey(_var))
             _var.Values(valueStore);
 
-        return valueStore[_var];
+        return 1 / valueStore[_var];
     }
 
     public Variable[] GetDependencies()
@@ -201,6 +201,53 @@ public readonly struct Invert : IOperation
     public double Derive(Variable var, Dictionary<Variable, double> values)
     {
         return -1 * System.Math.Pow(values[_var], -2);
+    }
+
+}
+
+
+public readonly struct Max: IOperation
+{
+
+
+    private readonly Variable _variable;
+    private readonly double _value;
+
+    public Max(Variable variable, double value)
+    {
+        _variable = variable;
+        _value = value;
+    }
+    
+    public double GetValue()
+    {
+        return System.Math.Max(_variable.Value(), _value);
+    }
+
+    public double GetValues(Dictionary<Variable, double> valueStore, Dictionary<Variable, List<Variable>> dependants)
+    {
+        if(!valueStore.ContainsKey(_variable))
+            _variable.Values(valueStore, dependants);
+
+        return System.Math.Max(valueStore[_variable], _value);
+    }
+
+    public double GetValues(Dictionary<Variable, double> valueStore)
+    {
+        if(!valueStore.ContainsKey(_variable))
+            _variable.Values(valueStore);
+
+        return System.Math.Max(valueStore[_variable], _value);
+    }
+
+    public Variable[] GetDependencies()
+    {
+        return new Variable[] { _variable };
+    }
+
+    public double Derive(Variable var, Dictionary<Variable, double> values)
+    {
+        return (var == _variable && values[var] >= _value) ? 1 : 0;
     }
     
 }

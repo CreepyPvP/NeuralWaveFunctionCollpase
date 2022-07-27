@@ -198,4 +198,10 @@ public class Variable
         return new Variable(new Invert(var1));
     }
 
+
+    public static Variable Max(Variable var1, double var2)
+    {
+        return new Variable(new Max(var1, var2));
+    }
+
 }

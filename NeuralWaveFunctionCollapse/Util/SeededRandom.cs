@@ -55,21 +55,20 @@ public class SeededRandom
         {
             for (var i = 0; i < elements; i++)
             {
-                totalLength += distribution.GetValue(i);
+                totalLength += System.Math.Max(distribution.GetValue(i), 0);
             }
         }
 
         var number = _random.NextDouble() * totalLength;
         double currentSum = 0;
-        
-        // distribution.Print();
 
         for (var i = 0; i < elements; i++)
         {
-            currentSum += distribution.GetValue(i);
+            currentSum += System.Math.Max(distribution.GetValue(i), 0);
             if (number <= currentSum) return i;
         }
-
+        
+        distribution.Print();
         throw new Exception("This should not happen");
     }
     

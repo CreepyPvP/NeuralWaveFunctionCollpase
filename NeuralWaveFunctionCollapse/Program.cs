@@ -25,10 +25,12 @@ namespace NeuralWaveFunctionCollapse;
  *      - Object pooling
  *
  * + Features
- *      - Activation functions (Relu)
+ *      - Activation functions (Relu) (done)
  *      - Better wave function classier model data preparation
  *      - Saving / Loading models
  *      - Delayed model training
+ *      - Add biases (done)
+ *      - Add wave function collapse failure detection
  */
 class Program
 {
@@ -45,8 +47,10 @@ class Program
 
         var network = 
             Network.Sequential(
-                new DenseLayer(Shape.Of(possibleOutputStates)),
-                new DenseLayer(Shape.Of(10))
+                new DenseLayer(Shape.Of(10), Activation.ReLu),
+                new DenseLayer(Shape.Of(10), Activation.ReLu),
+                new DenseLayer(Shape.Of(10), Activation.ReLu),
+                new DenseLayer(Shape.Of(possibleOutputStates), Activation.Identity)
             );
         
         var model = new ClassifierModel<NeuralNetworkTrainingConfig>(
@@ -58,8 +62,8 @@ class Program
         {
             Epochs = 1000,
             Optimiser = new StochasticGradientDescentOptimiser(new SgdConfig() {
-                Iterations = 2,
-                LearnRate = 0.03
+                Iterations = 1,
+                LearnRate = 0.005
             }),
             Loss = MeanSquaredError.Of
         };
@@ -68,11 +72,11 @@ class Program
 
 
 
-        // var grid = new Grid(16, 12, possibleOutputStates, model, 64567); 
-        // grid.Collapse();  
-        // grid.GetOutput().Print(true);
+        var grid = new Grid(16, 12, possibleOutputStates, model, 64567); 
+        grid.Collapse();  
+        grid.GetOutput().Print(true);
 
-
+        /*
         var test = new Tensor<double>(Shape.Of(24, 1));
         test.SetValue(0, 0, 0);
         test.SetValue(0, 1, 0);
@@ -106,7 +110,7 @@ class Program
         network.Simulate(test).Evaluate().Print();
         
         // Console.WriteLine("Avg time: " + benchmark.AvgTime);    // old system: 1,7709 (50x50 grid, 3 radius, 50 trees)
-        
+        */
     }
     
 }
