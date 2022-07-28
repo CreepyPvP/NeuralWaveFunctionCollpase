@@ -15,7 +15,7 @@ public class SimpleTrainingBenchmark: ITrainingBenchmark
     
     public void PushResult(double loss)
     {
-        loss += _totalLoss;
+        _totalLoss += loss;
         _totalAttempts++;
     }
     

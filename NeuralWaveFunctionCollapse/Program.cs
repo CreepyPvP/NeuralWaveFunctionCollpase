@@ -54,7 +54,7 @@ class Program
         
         var model = new ClassifierModel<NeuralNetworkTrainingConfig>(
             new NeuralNetworkClassifier(network), 
-            2,
+            3,
             possibleOutputStates);
 
         var config = new NeuralNetworkTrainingConfig()
@@ -62,7 +62,7 @@ class Program
             Epochs = 1000,
             Optimiser = new StochasticGradientDescentOptimiser(new SgdConfig() {
                 Iterations = 1,
-                LearnRate = 0.005
+                LearnRate = 0.0004
             }),
             Loss = MeanSquaredError.Of
         };
