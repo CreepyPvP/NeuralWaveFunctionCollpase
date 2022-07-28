@@ -1,3 +1,4 @@
+using NeuralWaveFunctionCollapse.MachineLearning.NeuralNetwork.Benchmark;
 using NeuralWaveFunctionCollapse.Math;
 using NeuralWaveFunctionCollapse.Math.AutoDif;
 using NeuralWaveFunctionCollapse.Math.Optimisation;
@@ -76,6 +77,8 @@ public class Network
             indices[i] = i;
         }
 
+        var trainingBenchmark = new SimpleTrainingBenchmark();
+
         for (int epoch = 0; epoch < config.Epochs; epoch++)
         {
             random.Shuffle(indices);
@@ -84,8 +87,10 @@ public class Network
             {
                 var index = indices[i];
 
-                config.Optimiser.Minimize(config.Loss(Simulate(data[index], true), labelArr[index]));   
+                config.Optimiser.Minimize(config.Loss(Simulate(data[index], true), labelArr[index]), trainingBenchmark);   
             }
+            
+            trainingBenchmark.EndEpoch();
         }
     }
     

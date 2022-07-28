@@ -21,7 +21,6 @@ namespace NeuralWaveFunctionCollapse;
  *
  * + Optimisation
  *      - Hash list for entropy searching
- *      - Faster shape foreach implementation
  *      - Object pooling
  *
  * + Features
@@ -40,7 +39,7 @@ class Program
         var ioManager = new IoManager();
         ioManager.RegisterImporter(new LdtkLevelImporter());
         
-        var level = ioManager.Load<LdtkLevel>("C:/Users/Luis/Desktop/maps/maps/Level_1.ldtkl");
+        var level = ioManager.Load<LdtkLevel>("C:/Users/inter/Desktop/maps/maps/Level_1.ldtkl");
         var input = level.GetLayer("StructureLayer").ToTensor().UpDimension();
         
         var possibleOutputStates = 5;

@@ -44,8 +44,12 @@ public class Variable
 
     public Dictionary<Variable, double> Derive()
     {
+        return Derive(new Dictionary<Variable, double>());  
+    }
+    
+    public Dictionary<Variable, double> Derive(Dictionary<Variable, double> values)
+    {
         Dictionary<Variable, double> derivatives = new();
-        Dictionary<Variable, double> values = new();
         Dictionary<Variable, List<Variable>> dependants = new();
 
         Values(values, dependants);
