@@ -55,7 +55,7 @@ public class SeededRandom
         {
             for (var i = 0; i < elements; i++)
             {
-                totalLength += System.Math.Max(distribution.GetValue(i), 0);
+                totalLength += distribution.GetValue(i);
             }
         }
 
@@ -64,7 +64,7 @@ public class SeededRandom
 
         for (var i = 0; i < elements; i++)
         {
-            currentSum += System.Math.Max(distribution.GetValue(i), 0);
+            currentSum += distribution.GetValue(i);
             if (number <= currentSum) return i;
         }
         

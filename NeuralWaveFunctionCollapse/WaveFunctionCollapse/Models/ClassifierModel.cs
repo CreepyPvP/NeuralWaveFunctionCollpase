@@ -20,49 +20,44 @@ public class ClassifierModel<TTrainConfiguration>: IWaveFunctionModel
         _outputClasses = outputClasses;
     }
 
-    // width x height x inputLayerCount
-    public void Build(Tensor<double> input, TTrainConfiguration configuration)
+
+    public void Build(Tensor<double>[] inputs, int inputDimensionality, TTrainConfiguration configuration, int periods)
     {
-        if (input.GetShape().GetDimensionality() != 3 || input.GetShape().GetSizeAt(2) <= 0)
-            throw new Exception("Invalid input data");
-
-        var width = input.GetShape().GetSizeAt(0);
-        var height = input.GetShape().GetSizeAt(1);
-
-        // training size x neuron count x inputs
-        var trainingData = new Tensor<double>(Shape.Of(width * height, GetKernelSize(_radius), input.GetShape().GetSizeAt(2)));
-        var labels = new Tensor<int>(Shape.Of(width * height));
-
-        var i = 0;
-        
-        for (var x = 0; x < width; x++)
+        foreach (var input in inputs)
         {
-            for (var y = 0; y < height; y++)
+            if (input.GetShape().GetDimensionality() != 3 || input.GetShape().GetSizeAt(2) != inputDimensionality)
+                throw new Exception("Invalid input data");
+        }
+
+
+        var collapseHandlers = new LoggerCollapseHandler[inputs.Length];
+        for (var i = 0; i < inputs.Length; i++)
+        {
+            collapseHandlers[i] = new LoggerCollapseHandler(inputs[i], GetDataAt, GetKernelSize(_radius));
+        }
+
+        _classifier.Build(GetKernelSize(_radius), _outputClasses, inputDimensionality);
+        
+        for (var period = 0; period < periods; period++)
+        {
+            for (var i = 0; i < inputs.Length; i++)
             {
-                labels.SetValue((int) input.GetValue(x, y, 0), i);
-
-                var index = 0;
+                var collapseHandler = collapseHandlers[i];
+         
+                var width = inputs[i].GetShape().GetSizeAt(0);
+                var height = inputs[i].GetShape().GetSizeAt(1);
+                
+                var grid = new Grid(width, height, _outputClasses, this, collapseHandler);
+                grid.Collapse();
             
-                for (var dX = -_radius; dX <= _radius; dX++)
-                {
-                    for (var dY = -_radius; dY <= _radius; dY++)
-                    {
-                        if(dX == 0 && dY == 0) continue;
-
-                         // TODO: add samples with uncollapsed indices ( -1 )
-                        trainingData.Copy(GetDataAt(x, y, input), trainingData.GetShape().GetIndex(i, index, 0));
-                        index++;
-                    }
-                }
-
-                i++;
+                Console.WriteLine("Training Period: " + period + ", Map: " + i + " ---------------------------------");
+                _classifier.TrainClassifier(collapseHandler.DecisionData, collapseHandler.DecisionLabels, configuration);
+            
+                collapseHandler.ResetHead();   
             }
         }
-        
-        _classifier.Build(GetKernelSize(_radius), _outputClasses, input.GetShape().GetSizeAt(2));
-        _classifier.TrainClassifier(trainingData, labels, configuration);
     }
-    
+
     public bool Impacts(int collapseX, int collapseY, int posX, int posY)
     {
         return System.Math.Abs(collapseX - posX) <= _radius && System.Math.Abs(collapseY - posY) <= _radius;
@@ -103,11 +98,11 @@ public class ClassifierModel<TTrainConfiguration>: IWaveFunctionModel
             y >= collapsed.GetShape().GetSizeAt(1))
         {
             // Default out of boundaries
-            result.SetValue(-1, 0);
+            result.SetValue(-2, 0);
             
             for (var i = 0; i < outputSize; i++)
             {
-                result.SetValue(-1, i + 1);
+                result.SetValue(-2, i + 1);
             }
             
             return result;
@@ -136,7 +131,7 @@ public class ClassifierModel<TTrainConfiguration>: IWaveFunctionModel
             // default out of boundaries
             for (var i = 0; i < outputSize; i++)
             {
-                result.SetValue(-1, i);
+                result.SetValue(-2, i);
             }
             
             return result;

@@ -22,17 +22,17 @@ public class Grid
     private readonly int _height;
 
     private readonly IWaveFunctionModel _model;
-    
-    private readonly SeededRandom _random;
-    
 
-    public Grid(int width, int height, int outputElements, IWaveFunctionModel model, int seed): 
-        this(width, height, outputElements, new Tensor<double>(Shape.Of(width, height, 0)), model, seed) {}
+    private readonly ICollapseHandler _collapseHandler;
 
-    public Grid(int width, int height, int outputElements, Tensor<double> input, IWaveFunctionModel model, int seed): 
-        this(width, height, outputElements, new Tensor<double>(Shape.Of(width, height, outputElements)), input, model, seed) { }
 
-    public Grid(int width, int height, int outputElements, Tensor<double> initialStates, Tensor<double> input, IWaveFunctionModel model, int seed)
+    public Grid(int width, int height, int outputElements, IWaveFunctionModel model, ICollapseHandler collapseHandler): 
+        this(width, height, outputElements, new Tensor<double>(Shape.Of(width, height, 0)), model, collapseHandler) {}
+
+    public Grid(int width, int height, int outputElements, Tensor<double> input, IWaveFunctionModel model, ICollapseHandler collapseHandler): 
+        this(width, height, outputElements, new Tensor<double>(Shape.Of(width, height, outputElements)), input, model, collapseHandler) { }
+
+    public Grid(int width, int height, int outputElements, Tensor<double> initialStates, Tensor<double> input, IWaveFunctionModel model, ICollapseHandler collapseHandler)
     {
         _outputElements = outputElements;
         _probabilities = new Tensor<double>(Shape.Of(width, height, outputElements), 1.0);
@@ -44,6 +44,7 @@ public class Grid
         _output = new Tensor<int>(Shape.Of(width, height), -1);
 
         _model = model;
+        _collapseHandler = collapseHandler;
         
         if (initialStates.GetShape().GetSizeAt(0) != width || 
             initialStates.GetShape().GetSizeAt(1) != height ||
@@ -56,8 +57,6 @@ public class Grid
             input.GetShape().GetDimensionality() != 3)
             throw new Exception("Invalid input format");
 
-        _random = new SeededRandom(seed);
-        
         CalculateInitialDistribution();
     }
 
@@ -78,7 +77,7 @@ public class Grid
         while (GetLowestEntropy(out var x, out var y)) 
         {
             var probabilities = _probabilities.Slice(2, x, y, 0);
-            var collapsedElement = _random.NextIndex(probabilities, false);
+            var collapsedElement = _collapseHandler.Collapse(probabilities, _output, _input, x, y);
 
             _output.SetValue(collapsedElement, x, y);
             
@@ -146,12 +145,12 @@ public class Grid
 
         for (var i = 0; i < _outputElements; i++)
         {
-            length += probabilities.GetValue(i);
+            length += System.Math.Max(probabilities.GetValue(i), 0);
         }
                     
         for (var i = 0; i < _outputElements; i++)
         {
-            _probabilities.SetValue(probabilities.GetValue(i) / length, x, y, i);
+            _probabilities.SetValue(System.Math.Max(probabilities.GetValue(i) / length, 0), x, y, i);
         }
     }
 

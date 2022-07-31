@@ -38,17 +38,23 @@ class Program
     {
         var ioManager = new IoManager();
         ioManager.RegisterImporter(new LdtkLevelImporter());
-        
-        var level = ioManager.Load<LdtkLevel>("C:/Users/inter/Desktop/maps/maps/Level_1.ldtkl");
-        var input = level.GetLayer("StructureLayer").ToTensor().UpDimension();
+
+
+        var mapCount = 30;
+        var input = new Tensor<double>[mapCount];
+        for (var i = 0; i < mapCount; i++)
+        {
+            var level = ioManager.Load<LdtkLevel>("C:/Users/Luis/Desktop/maps/maps/Level_" + (i + 1) + ".ldtkl");
+            input[i] = level.GetLayer("StructureLayer").ToTensor().UpDimension();    
+        }
         
         var possibleOutputStates = 5;
 
         var network = 
             Network.Sequential(
-                new DenseLayer(Shape.Of(10), Activation.ReLu),
-                new DenseLayer(Shape.Of(10), Activation.ReLu),
-                new DenseLayer(Shape.Of(10), Activation.ReLu),
+                new DenseLayer(Shape.Of(10), Activation.Identity),
+                new DenseLayer(Shape.Of(10), Activation.Identity),
+                new DenseLayer(Shape.Of(10), Activation.Identity),
                 new DenseLayer(Shape.Of(possibleOutputStates), Activation.Identity)
             );
         
@@ -57,21 +63,21 @@ class Program
             3,
             possibleOutputStates);
 
-        var config = new NeuralNetworkTrainingConfig()
+        var config = new NeuralNetworkTrainingConfig() 
         {
-            Epochs = 1000,
+            Epochs = 50,
             Optimiser = new StochasticGradientDescentOptimiser(new SgdConfig() {
                 Iterations = 1,
-                LearnRate = 0.0004
+                LearnRate = 0.0001
             }),
             Loss = MeanSquaredError.Of
         };
 
-        model.Build(input, config);
+        model.Build(input, 1, config, 10);
 
 
 
-        var grid = new Grid(16, 12, possibleOutputStates, model, 64567); 
+        var grid = new Grid(16, 12, possibleOutputStates, model, new RandomCollapseHandler(54684)); 
         grid.Collapse();  
         grid.GetOutput().Print(true);
 
