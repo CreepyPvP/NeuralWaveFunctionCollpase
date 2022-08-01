@@ -68,8 +68,11 @@ public class SeededRandom
             if (number <= currentSum) return i;
         }
         
+        Console.WriteLine("Error in next index");
         distribution.Print();
-        throw new Exception("This should not happen");
+        // throw new Exception("This should not happen");
+
+        return -3;
     }
     
     public double NextDouble(double mean, double stdDev)

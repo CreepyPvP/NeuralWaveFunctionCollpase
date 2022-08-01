@@ -40,11 +40,11 @@ class Program
         ioManager.RegisterImporter(new LdtkLevelImporter());
 
 
-        var mapCount = 30;
+        var mapCount = 1;
         var input = new Tensor<double>[mapCount];
         for (var i = 0; i < mapCount; i++)
         {
-            var level = ioManager.Load<LdtkLevel>("C:/Users/Luis/Desktop/maps/maps/Level_" + (i + 1) + ".ldtkl");
+            var level = ioManager.Load<LdtkLevel>("C:/Users/Luis/Desktop/maps/maps/Level_" + 250 + ".ldtkl");
             input[i] = level.GetLayer("StructureLayer").ToTensor().UpDimension();    
         }
         
@@ -52,32 +52,31 @@ class Program
 
         var network = 
             Network.Sequential(
-                new DenseLayer(Shape.Of(10), Activation.Identity),
-                new DenseLayer(Shape.Of(10), Activation.Identity),
-                new DenseLayer(Shape.Of(10), Activation.Identity),
+                new DenseLayer(Shape.Of(30), Activation.Identity),
+                new DenseLayer(Shape.Of(30), Activation.Identity),
                 new DenseLayer(Shape.Of(possibleOutputStates), Activation.Identity)
             );
         
         var model = new ClassifierModel<NeuralNetworkTrainingConfig>(
             new NeuralNetworkClassifier(network), 
-            3,
+            1,
             possibleOutputStates);
 
         var config = new NeuralNetworkTrainingConfig() 
         {
-            Epochs = 50,
+            Epochs = 4000,
             Optimiser = new StochasticGradientDescentOptimiser(new SgdConfig() {
                 Iterations = 1,
-                LearnRate = 0.0001
+                LearnRate = 0.000005
             }),
             Loss = MeanSquaredError.Of
         };
 
-        model.Build(input, 1, config, 10);
+        model.Build(input, 1, config, 5);
 
 
 
-        var grid = new Grid(16, 12, possibleOutputStates, model, new RandomCollapseHandler(54684)); 
+        var grid = new Grid(5, 5, possibleOutputStates, model, new RandomCollapseHandler(54684)); 
         grid.Collapse();  
         grid.GetOutput().Print(true);
 

@@ -33,7 +33,7 @@ public class ClassifierModel<TTrainConfiguration>: IWaveFunctionModel
         var collapseHandlers = new LoggerCollapseHandler[inputs.Length];
         for (var i = 0; i < inputs.Length; i++)
         {
-            collapseHandlers[i] = new LoggerCollapseHandler(inputs[i], GetDataAt, GetKernelSize(_radius));
+            collapseHandlers[i] = new LoggerCollapseHandler(inputs[i], GetNeighborhoodAt, GetKernelSize(_radius));
         }
 
         _classifier.Build(GetKernelSize(_radius), _outputClasses, inputDimensionality);
@@ -52,7 +52,7 @@ public class ClassifierModel<TTrainConfiguration>: IWaveFunctionModel
             
                 Console.WriteLine("Training Period: " + period + ", Map: " + i + " ---------------------------------");
                 _classifier.TrainClassifier(collapseHandler.DecisionData, collapseHandler.DecisionLabels, configuration);
-            
+
                 collapseHandler.ResetHead();   
             }
         }
@@ -65,24 +65,7 @@ public class ClassifierModel<TTrainConfiguration>: IWaveFunctionModel
 
     public Tensor<double> CalculateDistribution(int collapsedX, int collapsedY, Tensor<int> collapsed, Tensor<double> additionalData)
     {
-        // Pos x property
-        var request = new Tensor<double>(Shape.Of(GetKernelSize(_radius), additionalData.GetShape().GetSizeAt(2) + 1));
-
-        var index = 0;
-        
-        for (var dX = -_radius; dX <= _radius; dX++)
-        {
-            for (var dY = -_radius; dY <= _radius; dY++)
-            {
-                if(dX == 0 && dY == 0) continue;
-
-                var x = collapsedX + dX;
-                var y = collapsedY + dY;
-                
-                request.Copy(GetDataAt(x, y, collapsed, additionalData), request.GetShape().GetIndex(index, 0));
-                index++;
-            }
-        }
+        var request = GetNeighborhoodAt(collapsedX, collapsedY, collapsed, additionalData);
 
         return _classifier.Classify(request).Evaluate();
     }
@@ -119,31 +102,30 @@ public class ClassifierModel<TTrainConfiguration>: IWaveFunctionModel
     }
 
 
-    private Tensor<double> GetDataAt(int x, int y, Tensor<double> input)
+    public Tensor<double> GetNeighborhoodAt(int collapsedX, int collapsedY, Tensor<int> collapsed, Tensor<double> input)
     {
-        var outputSize = input.GetShape().GetSizeAt(2);
-        var result = new Tensor<double>(Shape.Of(outputSize));
+        // Pos x property
+        var request = new Tensor<double>(Shape.Of(GetKernelSize(_radius), input.GetShape().GetSizeAt(2) + 1));
+
+        var index = 0;
         
-        if (x < 0 || y < 0 ||
-            x >= input.GetShape().GetSizeAt(0) ||
-            y >= input.GetShape().GetSizeAt(1))
+        for (var dX = -_radius; dX <= _radius; dX++)
         {
-            // default out of boundaries
-            for (var i = 0; i < outputSize; i++)
+            for (var dY = -_radius; dY <= _radius; dY++)
             {
-                result.SetValue(-2, i);
+                if(dX == 0 && dY == 0) continue;
+
+                var x = collapsedX + dX;
+                var y = collapsedY + dY;
+                
+                request.Copy(GetDataAt(x, y, collapsed, input), request.GetShape().GetIndex(index, 0));
+                index++;
             }
-            
-            return result;
         }
-        
-        for (var i = 0; i < outputSize; i++)
-        {
-            result.SetValue(input.GetValue(x, y, i), i);
-        }
-        
-        return result;
+
+        return request;
     }
+
 
     private int GetKernelSize(int radius)
     {

@@ -9,17 +9,17 @@ public class LoggerCollapseHandler: ICollapseHandler
     // width x height x input
     private readonly Tensor<double> _output;
 
-    private readonly Func<int, int, Tensor<int>, Tensor<double>, Tensor<double>> _getDataAt;
+    private readonly Func<int, int, Tensor<int>, Tensor<double>, Tensor<double>> _getNeighbourhood;
 
     private readonly Tensor<double> _decisionData;
     private readonly Tensor<int> _decisionLabels;
 
     private int _currentIndex = 0;
 
-    public LoggerCollapseHandler(Tensor<double> output, Func<int, int, Tensor<int>, Tensor<double>, Tensor<double>> getDataAt, int kernelSize)
+    public LoggerCollapseHandler(Tensor<double> output, Func<int, int, Tensor<int>, Tensor<double>, Tensor<double>> getNeighbourhood, int kernelSize)
     {
         _output = output;
-        _getDataAt = getDataAt;
+        _getNeighbourhood = getNeighbourhood;
 
         var width = output.GetShape().GetSizeAt(0);
         var height = output.GetShape().GetSizeAt(1);
@@ -30,11 +30,12 @@ public class LoggerCollapseHandler: ICollapseHandler
     }
     
     
+
     public int Collapse(Tensor<double> probabilities, Tensor<int> collapsed, Tensor<double> input, int x, int y)
     {
         var result = (int) _output.GetValue(x, y, 0);
 
-        _decisionData.Copy(_getDataAt(x, y, collapsed, input), _currentIndex);
+        _decisionData.Copy(_getNeighbourhood(x, y, collapsed, input), _decisionData.GetShape().GetIndex(_currentIndex, 0, 0));
         _decisionLabels.SetValue(result, _currentIndex);
 
         _currentIndex++;

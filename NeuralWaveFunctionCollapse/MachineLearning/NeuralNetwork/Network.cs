@@ -77,6 +77,30 @@ public class Network
             indices[i] = i;
         }
 
+        
+        
+        Console.WriteLine("Data ----------");
+        data[0].Print();
+        data[1].Print();
+        data[2].Print();
+        data[3].Print();
+        data[4].Print();
+        data[5].Print();
+        data[6].Print();
+        data[7].Print();
+        data[8].Print();
+        
+        Console.WriteLine("test:" );
+        labelArr[0].Print();
+        labelArr[1].Print();
+        labelArr[2].Print();
+        labelArr[3].Print();
+        labelArr[4].Print();
+        labelArr[5].Print();
+        labelArr[6].Print();
+        labelArr[7].Print();
+        labelArr[8].Print();
+
         var trainingBenchmark = new SimpleTrainingBenchmark();
 
         for (int epoch = 0; epoch < config.Epochs; epoch++)

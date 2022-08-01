@@ -34,6 +34,7 @@ public class StochasticGradientDescentOptimiser: IOptimiser
 
             var values = new Dictionary<Variable, double>();
             var derivatives = fun.Derive(values);
+
             foreach (var variable in adjustable)
             {
                 var derivative = derivatives[variable];
@@ -59,6 +60,9 @@ public class StochasticGradientDescentOptimiser: IOptimiser
                 if (!param.IsIdentity()) continue;
                 
                 param.Set(param.Value() - _config.LearnRate * derivatives[param]);
+                
+                // Console.WriteLine("value: " + param.Value() + ", delta: " + derivatives[param]);
+
                 
                 if(benchmark != null)
                     benchmark.PushResult(values[fun]);
