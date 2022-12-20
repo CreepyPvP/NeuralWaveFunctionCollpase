@@ -208,4 +208,9 @@ public class Variable
         return new Variable(new Max(var1, var2));
     }
 
+
+    public override string ToString()
+    {
+        return Value() + "";
+    }
 }

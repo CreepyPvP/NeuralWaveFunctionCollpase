@@ -1,3 +1,4 @@
+using NeuralWaveFunctionCollapse.IO;
 using NeuralWaveFunctionCollapse.MachineLearning.NeuralNetwork;
 using NeuralWaveFunctionCollapse.Math;
 using NeuralWaveFunctionCollapse.Math.AutoDif;
@@ -29,7 +30,12 @@ public class NeuralNetworkClassifier: IWaveFunctionClassifier<NeuralNetworkTrain
         _outputDimensions = outputDimensions;
         _network.Compile(Shape.Of(kernelSize, inputDimensions));
     }
-    
+
+    public void Save(string file, IoManager ioManager)
+    {
+        ioManager.Export(file, _network);
+    }
+
     // input: index x datapoint
     // label: index
     public void TrainClassifier(Tensor<double> input, Tensor<int> labels, NeuralNetworkTrainingConfig config)

@@ -320,5 +320,11 @@ public class Tensor<T>
             action(value);
         }
     }
-    
+
+
+    public override string ToString()
+    {
+        var content = String.Join(",", _values.Select(value => "\"" + value.ToString() + "\""));
+        return $"[{content}]";
+    }
 }

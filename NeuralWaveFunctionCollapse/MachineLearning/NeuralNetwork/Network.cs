@@ -154,4 +154,12 @@ public class Network
         return new Network(root!);
     }
 
+
+    public override string ToString()
+    {
+        var layers = new List<Layer>();
+        _graph.ForEach(layer => layers.Add(layer.GetValue()));
+        var serializedLayers = string.Join(", ", layers.Select(layer => layer.ToString()));
+        return "{\"layers\": [" + serializedLayers + "]}";
+    }
 }

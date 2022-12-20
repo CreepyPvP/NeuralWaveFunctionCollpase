@@ -1,4 +1,6 @@
-﻿using NeuralWaveFunctionCollapse.MachineLearning;
+﻿using System.Runtime.Versioning;
+using NeuralWaveFunctionCollapse.IO;
+using NeuralWaveFunctionCollapse.MachineLearning;
 using NeuralWaveFunctionCollapse.Math;
 
 namespace NeuralWaveFunctionCollapse.WaveFunctionCollapse.Models;
@@ -21,7 +23,7 @@ public class ClassifierModel<TTrainConfiguration>: IWaveFunctionModel
     }
 
 
-    public void Build(Tensor<double>[] inputs, int inputDimensionality, TTrainConfiguration configuration, int periods)
+    public void Build(Tensor<double>[] inputs, int inputDimensionality, TTrainConfiguration configuration, int periods, String path = null, IoManager ioManager = null)
     {
         foreach (var input in inputs)
         {
@@ -54,6 +56,9 @@ public class ClassifierModel<TTrainConfiguration>: IWaveFunctionModel
                 _classifier.TrainClassifier(collapseHandler.DecisionData, collapseHandler.DecisionLabels, configuration);
 
                 collapseHandler.ResetHead();   
+                
+                if(path != null && ioManager != null)
+                    Save(path + "-" + period + ".json", ioManager);
             }
         }
     }
@@ -126,10 +131,16 @@ public class ClassifierModel<TTrainConfiguration>: IWaveFunctionModel
         return request;
     }
 
-
+    public void Save(string file, IoManager ioManager)
+    {
+        _classifier.Save(file, ioManager);
+    }
+    
+    
     private int GetKernelSize(int radius)
     {
         return (2 * radius + 1) * (2 * radius + 1) - 1;
     }
+    
     
 }

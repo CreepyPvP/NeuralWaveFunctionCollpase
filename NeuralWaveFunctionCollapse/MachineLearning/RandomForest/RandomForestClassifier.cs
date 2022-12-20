@@ -1,3 +1,4 @@
+using NeuralWaveFunctionCollapse.IO;
 using NeuralWaveFunctionCollapse.Math;
 using NeuralWaveFunctionCollapse.Math.AutoDif;
 using NeuralWaveFunctionCollapse.Math.Optimisation;
@@ -79,6 +80,11 @@ public class RandomForestClassifier: IWaveFunctionClassifier<RandomForestTrainin
     public void Build(int kernelSize, int outputClasses, int inputDimensions)
     {
         
+    }
+
+    public void Save(string file, IoManager ioManager)
+    {
+        throw new NotImplementedException();
     }
 
     private Tensor<int> GenerateParamCombinations(int length, Shape shape, int count, SeededRandom random)

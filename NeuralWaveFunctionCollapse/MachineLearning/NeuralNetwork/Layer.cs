@@ -14,6 +14,9 @@ public abstract class Layer : IDataSource
         _id = id;
     }
 
+
+    public String Id => _id;
+    
     public abstract Shape GetOutputShape();
 
     public abstract void Build(IDataSource input, SeededRandom random);

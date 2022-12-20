@@ -17,7 +17,7 @@ public class DenseLayer: Layer
     private Tensor<Variable> _value;
     
 
-    public DenseLayer(Shape shape, Func<Variable, Variable> activation) : base("dense_layer")
+    public DenseLayer(Shape shape, Func<Variable, Variable> activation, String id) : base(id)
     {
         _shape = shape;
         _activation = activation;
@@ -58,4 +58,11 @@ public class DenseLayer: Layer
     {
         return _value;
     }
+
+    
+    public override string ToString()
+    {
+        return $"{{id: \"{Id}\", weights: {_weights}, biases: {_biasWeights}}}";
+    }
+    
 }

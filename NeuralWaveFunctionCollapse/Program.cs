@@ -38,8 +38,8 @@ class Program
     {
         var ioManager = new IoManager();
         ioManager.RegisterImporter(new LdtkLevelImporter());
-
-
+        ioManager.RegisterExporter(new NetworkExporter());
+        
         var mapCount = 1;
         var input = new Tensor<double>[mapCount];
         for (var i = 0; i < mapCount; i++)
@@ -52,9 +52,9 @@ class Program
 
         var network = 
             Network.Sequential(
-                new DenseLayer(Shape.Of(15), Activation.ReLu),
-                new DenseLayer(Shape.Of(15), Activation.ReLu),
-                new DenseLayer(Shape.Of(possibleOutputStates), Activation.Identity)
+                new DenseLayer(Shape.Of(15), Activation.ReLu, "dense_layer_0"),
+                new DenseLayer(Shape.Of(15), Activation.ReLu, "dense_layer_1"),
+                new DenseLayer(Shape.Of(possibleOutputStates), Activation.Identity, "dense_layer_2")
             );
         
         var model = new ClassifierModel<NeuralNetworkTrainingConfig>(
@@ -64,7 +64,7 @@ class Program
 
         var config = new NeuralNetworkTrainingConfig() 
         {
-            Epochs = 20,
+            Epochs = 10,
             Optimiser = new StochasticGradientDescentOptimiser(new SgdConfig() {
                 Iterations = 1,
                 LearnRate = 0.0005
@@ -73,9 +73,8 @@ class Program
             TestRatio = 0.1
         };
 
-        model.Build(input, 1, config, 5);
+        model.Build(input, 1, config, 300, "D:/projects/NeuralWaveFunctionCollpase/NeuralWaveFunctionCollapse/Models/model", ioManager);
 
-        
         var grid = new Grid(20, 20, possibleOutputStates, model, new RandomCollapseHandler(54684)); 
         grid.Collapse();  
         grid.GetOutput().Print(true);

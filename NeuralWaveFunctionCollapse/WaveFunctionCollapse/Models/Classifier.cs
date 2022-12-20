@@ -1,4 +1,5 @@
-﻿using NeuralWaveFunctionCollapse.Math;
+﻿using NeuralWaveFunctionCollapse.IO;
+using NeuralWaveFunctionCollapse.Math;
 using NeuralWaveFunctionCollapse.Math.AutoDif;
 using NeuralWaveFunctionCollapse.Math.Optimisation;
 
@@ -14,5 +15,7 @@ public interface IWaveFunctionClassifier<TClassifierConfig>
     void TrainClassifier(Tensor<double> input, Tensor<int> labels, TClassifierConfig config);
 
     void Build(int kernelSize, int outputDimensions, int inputDimensions);
+
+    void Save(string file, IoManager ioManager);
 
 }
