@@ -52,8 +52,8 @@ class Program
 
         var network = 
             Network.Sequential(
-                new DenseLayer(Shape.Of(30), Activation.ReLu),
-                new DenseLayer(Shape.Of(30), Activation.ReLu),
+                new DenseLayer(Shape.Of(15), Activation.ReLu),
+                new DenseLayer(Shape.Of(15), Activation.ReLu),
                 new DenseLayer(Shape.Of(possibleOutputStates), Activation.Identity)
             );
         
@@ -64,10 +64,10 @@ class Program
 
         var config = new NeuralNetworkTrainingConfig() 
         {
-            Epochs = 40,
+            Epochs = 20,
             Optimiser = new StochasticGradientDescentOptimiser(new SgdConfig() {
                 Iterations = 1,
-                LearnRate = 0.00005
+                LearnRate = 0.0005
             }),
             Loss = MeanSquaredError.Of,
             TestRatio = 0.1

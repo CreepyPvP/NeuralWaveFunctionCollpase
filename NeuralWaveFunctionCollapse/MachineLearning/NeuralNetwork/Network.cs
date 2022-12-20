@@ -79,7 +79,7 @@ public class Network
             indices[i] = i;
         }
 
-        var testSize = System.Math.Min((int)config.TestRatio * data.Length, data.Length);
+        var testSize = (int) System.Math.Min(config.TestRatio * data.Length, data.Length);
         var tests = new Tensor<double>[testSize];
         var testLabels = new Tensor<double>[testSize];
 
