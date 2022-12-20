@@ -136,7 +136,7 @@ public class Grid
         
         var probabilities = _model.CalculateDistribution(x, y, _output, _input);
 
-        probabilities.Print();
+        // probabilities.Print();
         
         if (probabilities.GetShape().GetSizeAt(0) != _outputElements)
             throw new Exception("Model returned invalid probability distribution");

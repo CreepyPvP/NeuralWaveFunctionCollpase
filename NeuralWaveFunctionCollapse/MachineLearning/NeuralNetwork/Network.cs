@@ -19,6 +19,8 @@ public struct NeuralNetworkTrainingConfig
 
     public int Epochs;
 
+    public double TestRatio;
+
 }
 
 
@@ -77,29 +79,9 @@ public class Network
             indices[i] = i;
         }
 
-        
-        
-        Console.WriteLine("Data ----------");
-        data[0].Print();
-        data[1].Print();
-        data[2].Print();
-        data[3].Print();
-        data[4].Print();
-        data[5].Print();
-        data[6].Print();
-        data[7].Print();
-        data[8].Print();
-        
-        Console.WriteLine("test:" );
-        labelArr[0].Print();
-        labelArr[1].Print();
-        labelArr[2].Print();
-        labelArr[3].Print();
-        labelArr[4].Print();
-        labelArr[5].Print();
-        labelArr[6].Print();
-        labelArr[7].Print();
-        labelArr[8].Print();
+        var testSize = System.Math.Min((int)config.TestRatio * data.Length, data.Length);
+        var tests = new Tensor<double>[testSize];
+        var testLabels = new Tensor<double>[testSize];
 
         var trainingBenchmark = new SimpleTrainingBenchmark();
 
@@ -107,15 +89,43 @@ public class Network
         {
             random.Shuffle(indices);
 
-            for (var i = 0; i < data.Length; i++)
+            // training
+            for (var i = 0; i < data.Length - testSize; i++)
             {
                 var index = indices[i];
 
                 config.Optimiser.Minimize(config.Loss(Simulate(data[index], true), labelArr[index]), trainingBenchmark);   
             }
             
-            trainingBenchmark.EndEpoch();
+            // testing
+            for (var i = 0; i < testSize; i++)
+            {
+                tests[i] = data[data.Length - testSize + i];
+                testLabels[i] = labelArr[data.Length - testSize + i];
+            }
+            if(testSize > 0)
+                Evaluate(tests, testLabels, config.Loss);
         }
+    }
+
+    
+    // input: index x datapoint
+    // labels: index x outputs
+    public void Evaluate(Tensor<double> data, Tensor<double> labels, Func<Tensor<Variable>, Tensor<double>, Variable> loss)
+    {
+        Evaluate(data.ToArray(), labels.ToArray(), loss);
+    }
+
+    public void Evaluate(Tensor<double>[] data, Tensor<double>[] labels, Func<Tensor<Variable>, Tensor<double>, Variable> loss)
+    {
+        var trainingBenchmark = new SimpleTrainingBenchmark();
+
+        for (var i = 0; i < data.Length; i++)
+        {
+            trainingBenchmark.PushResult(loss(Simulate(data[i], true), labels[i]).Value());
+        }
+
+        trainingBenchmark.EndEpoch();
     }
     
     public static Network Sequential(params Layer[] layers)

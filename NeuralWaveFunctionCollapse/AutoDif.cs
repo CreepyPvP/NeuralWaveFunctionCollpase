@@ -12,9 +12,6 @@ public class AutoDif
         var y = Variable.Of(10);
 
         var results = F(x, y).Derive();
-        
-        Console.WriteLine(results[x]);
-        Console.WriteLine(results[y]);
     }
 
     static Variable F(Variable x, Variable y)
