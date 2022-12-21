@@ -31,6 +31,12 @@ public class NeuralNetworkClassifier: IWaveFunctionClassifier<NeuralNetworkTrain
         _network.Compile(Shape.Of(kernelSize, inputDimensions));
     }
 
+    public void Build(int kernelSize, int outputDimensions, int inputDimensions, string file, IoManager ioManager)
+    {
+        _outputDimensions = outputDimensions;
+        _network.Compile(Shape.Of(kernelSize, inputDimensions), file, ioManager);
+    }
+
     public void Save(string file, IoManager ioManager)
     {
         ioManager.Export(file, _network);

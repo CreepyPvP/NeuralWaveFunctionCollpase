@@ -1,9 +1,11 @@
+using NeuralWaveFunctionCollapse.IO;
 using NeuralWaveFunctionCollapse.MachineLearning.NeuralNetwork.Benchmark;
 using NeuralWaveFunctionCollapse.Math;
 using NeuralWaveFunctionCollapse.Math.AutoDif;
 using NeuralWaveFunctionCollapse.Math.Optimisation;
 using NeuralWaveFunctionCollapse.Util;
 using NeuralWaveFunctionCollapse.WaveFunctionCollapse.Models;
+using Newtonsoft.Json.Linq;
 
 namespace NeuralWaveFunctionCollapse.MachineLearning. NeuralNetwork;
 
@@ -40,6 +42,32 @@ public class Network
         _graph = graph;
     }
 
+
+    public void Compile(Shape input, string file, IoManager ioManager)
+    {
+        var data = ioManager.Load<JObject>(file);
+        JToken[] layers = data["layers"].Children().ToArray();
+        
+        _inputShape = input;
+
+        var random = new SeededRandom(4534509);
+        
+        _input = new InputDataSource(input);
+        _graph.GetValue().Build(_input, random, FindLayer(layers, _graph.GetValue().Id));
+        
+        _graph.ForEach(layer =>
+        {
+            layer.GetChildren().ForEach(child => child.GetValue().Build(layer.GetValue(), random, FindLayer(layers, child.GetValue().Id)));
+
+            if (layer.GetChildren().Count == 0) _output = layer.GetValue().GetValue();
+        });
+    }
+
+    private JToken FindLayer(JToken[] layers, string id)
+    {
+        return layers.FirstOrDefault(token => (string)token["id"] == id);
+    }
+    
     public void Compile(Shape input)
     {
         _inputShape = input;
@@ -47,11 +75,11 @@ public class Network
         var random = new SeededRandom(4534509);
         
         _input = new InputDataSource(input);
-        _graph.GetValue().Build(_input, random);
+        _graph.GetValue().Build(_input, random, null);
         
         _graph.ForEach(layer =>
         {
-            layer.GetChildren().ForEach(child => child.GetValue().Build(layer.GetValue(), random));
+            layer.GetChildren().ForEach(child => child.GetValue().Build(layer.GetValue(), random, null));
 
             if (layer.GetChildren().Count == 0) _output = layer.GetValue().GetValue();
         });

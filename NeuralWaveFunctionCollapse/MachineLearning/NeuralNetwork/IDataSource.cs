@@ -1,6 +1,7 @@
 ﻿using NeuralWaveFunctionCollapse.Math;
 using NeuralWaveFunctionCollapse.Math.AutoDif;
 using NeuralWaveFunctionCollapse.Util;
+using Newtonsoft.Json.Linq;
 
 namespace NeuralWaveFunctionCollapse.MachineLearning.NeuralNetwork;
 
@@ -9,7 +10,7 @@ public interface IDataSource
 
     Shape GetOutputShape();
     
-    void Build(IDataSource source, SeededRandom random);
+    void Build(IDataSource source, SeededRandom random, JToken token);
 
     Tensor<Variable> GetValue();
 
@@ -38,7 +39,7 @@ public class InputDataSource : IDataSource
         return _output.GetShape();
     }
 
-    public void Build(IDataSource source, SeededRandom random)
+    public void Build(IDataSource source, SeededRandom random, JToken token)
     {
 
     }

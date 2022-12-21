@@ -12,6 +12,8 @@ using NeuralWaveFunctionCollapse.Types;
 using NeuralWaveFunctionCollapse.WaveFunctionCollapse;
 using NeuralWaveFunctionCollapse.WaveFunctionCollapse.Models;
 using NeuralWaveFunctionCollapse.WaveFunctionCollapse.Models.Classifiers;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace NeuralWaveFunctionCollapse;
 
@@ -39,6 +41,7 @@ class Program
         var ioManager = new IoManager();
         ioManager.RegisterImporter(new LdtkLevelImporter());
         ioManager.RegisterExporter(new NetworkExporter());
+        ioManager.RegisterImporter(new JsonImporter());
         
         var mapCount = 1;
         var input = new Tensor<double>[mapCount];
@@ -73,11 +76,19 @@ class Program
             TestRatio = 0.1
         };
 
-        model.Build(input, 1, config, 300, "D:/projects/NeuralWaveFunctionCollpase/NeuralWaveFunctionCollapse/Models/model", ioManager);
+        model.Build(
+            input,
+            1, 
+            config,
+             300, 
+            ioManager, 
+            "D:/projects/NeuralWaveFunctionCollpase/NeuralWaveFunctionCollapse/Models/model",
+            "D:/projects/NeuralWaveFunctionCollpase/NeuralWaveFunctionCollapse/Models/model-4.json");
 
         var grid = new Grid(20, 20, possibleOutputStates, model, new RandomCollapseHandler(54684)); 
         grid.Collapse();  
         grid.GetOutput().Print(true);
     }
+
     
 }

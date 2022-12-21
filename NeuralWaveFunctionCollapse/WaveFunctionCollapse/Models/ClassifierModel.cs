@@ -23,7 +23,13 @@ public class ClassifierModel<TTrainConfiguration>: IWaveFunctionModel
     }
 
 
-    public void Build(Tensor<double>[] inputs, int inputDimensionality, TTrainConfiguration configuration, int periods, String path = null, IoManager ioManager = null)
+    public void Build(Tensor<double>[] inputs, 
+        int inputDimensionality, 
+        TTrainConfiguration configuration, 
+        int periods,
+        IoManager ioManager = null,
+        string outputPath = null,
+        string modelPath = null)
     {
         foreach (var input in inputs)
         {
@@ -38,8 +44,15 @@ public class ClassifierModel<TTrainConfiguration>: IWaveFunctionModel
             collapseHandlers[i] = new LoggerCollapseHandler(inputs[i], GetNeighborhoodAt, GetKernelSize(_radius));
         }
 
-        _classifier.Build(GetKernelSize(_radius), _outputClasses, inputDimensionality);
-        
+        if (ioManager != null && modelPath != null)
+        {
+            _classifier.Build(GetKernelSize(_radius), _outputClasses, inputDimensionality, modelPath, ioManager);
+        }
+        else
+        {
+            _classifier.Build(GetKernelSize(_radius), _outputClasses, inputDimensionality);   
+        }
+
         for (var period = 0; period < periods; period++)
         {
             for (var i = 0; i < inputs.Length; i++)
@@ -57,8 +70,8 @@ public class ClassifierModel<TTrainConfiguration>: IWaveFunctionModel
 
                 collapseHandler.ResetHead();   
                 
-                if(path != null && ioManager != null)
-                    Save(path + "-" + period + ".json", ioManager);
+                if(outputPath != null && ioManager != null)
+                    Save(outputPath + "-" + period + ".json", ioManager);
             }
         }
     }

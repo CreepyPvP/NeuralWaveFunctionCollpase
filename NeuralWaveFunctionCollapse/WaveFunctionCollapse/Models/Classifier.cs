@@ -16,6 +16,8 @@ public interface IWaveFunctionClassifier<TClassifierConfig>
 
     void Build(int kernelSize, int outputDimensions, int inputDimensions);
 
+    void Build(int kernelSize, int outputDimensions, int inputDimensions, string file, IoManager ioManager);
+    
     void Save(string file, IoManager ioManager);
 
 }

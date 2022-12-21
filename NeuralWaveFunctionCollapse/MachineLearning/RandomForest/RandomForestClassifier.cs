@@ -82,6 +82,11 @@ public class RandomForestClassifier: IWaveFunctionClassifier<RandomForestTrainin
         
     }
 
+    public void Build(int kernelSize, int outputDimensions, int inputDimensions, string file, IoManager ioManager)
+    {
+        throw new NotImplementedException();
+    }
+
     public void Save(string file, IoManager ioManager)
     {
         throw new NotImplementedException();
